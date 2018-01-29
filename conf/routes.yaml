@@ -170,4 +170,15 @@ app:
     upstreamServicePort: 80
     corsPolicy: allow_all
 
+
+frontendweb:
+  /:
+    corsPolicy: allow_all
+    upstreamService:
+      name: frontendweb
+      namespace: '{{ cluster.metadata.namespaces.user }}'
+    upstreamServicePath: /
+    upstreamServicePort: 80
+
+    
 # To see actual endpoints for these routes, use `$ hasura microserivce list`
