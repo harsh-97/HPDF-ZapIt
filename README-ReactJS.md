@@ -1,6 +1,7 @@
-# hello-python-flask
+The README for the ReactJS section of the product
 
-Boilerplate Hasura project with [Flask](http://flask.pocoo.org/) microservice.
+
+
 
 
 ## Getting started
