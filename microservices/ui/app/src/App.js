@@ -31,9 +31,19 @@ class App extends Component {
 }
 
 
+function Test(props){
+  return(
+    <h4>
+    Test Route Successful!
+    </h4>
+    );
+}
+
+
 const Redirect = () => (
   <Switch>
     <Route exact path="/" component={App}/>
+    <Route path="/testRoute" component={Test}/>
   </Switch>
 );
 
