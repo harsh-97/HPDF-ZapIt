@@ -179,6 +179,14 @@ ui:
       namespace: '{{ cluster.metadata.namespaces.user }}'
     upstreamServicePath: /
     upstreamServicePort: 80
+  
+  /testroute:
+    corsPolicy: allow_all
+    upstreamService:
+      name: testroute
+      namespace: '{{ cluster.metadata.namespaces.user }}'
+    upstreamServicePath: /testroute
+    upstreamServicePort: 80
     
     
 # To see actual endpoints for these routes, use `$ hasura microserivce list`
