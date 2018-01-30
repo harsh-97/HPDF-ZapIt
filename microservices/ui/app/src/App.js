@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
-import { Switch, Route } from 'react-router-dom';
+// import { Switch, Route } from 'react-router-dom';
 
-import Mui from 'material-ui/styles/MuiThemeProvider';
-import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
+// import Mui from 'material-ui/styles/MuiThemeProvider';
+// import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
 
 import logo from './logo.svg';
 import './App.css';
 
-const muiTheme = getMuiTheme({
-    fontFamily: 'Arial, sans-serif',
-});
+// const muiTheme = getMuiTheme({
+//     fontFamily: 'Arial, sans-serif',
+// });
 
 
 class App extends Component {
   render() {
     return (
-      <Mui muiTheme={muiTheme}>
+      // <Mui muiTheme={muiTheme}>
         <div className="App">
           <header className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
@@ -25,7 +25,7 @@ class App extends Component {
             To get started, edit <code>src/App.js</code> and save to reload.
           </p>
         </div>
-      </Mui>
+      // </Mui>
     );
   }
 }
@@ -40,12 +40,14 @@ function Test(props){
 }
 
 
-const Redirect = () => (
-  <Switch>
-    <Route exact path="/" component={App}/>
-    <Route path="/testRoute" component={Test}/>
-  </Switch>
-);
+// const Redirect = () => (
+//   <Switch>
+//     <Route exact path="/" component={App}/>
+//     <Route path="/testRoute" component={Test}/>
+//   </Switch>
+// );
 
 
-export default Redirect;
+// export default Redirect;
+
+export default App;
