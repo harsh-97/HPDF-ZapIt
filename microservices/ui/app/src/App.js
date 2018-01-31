@@ -23,7 +23,7 @@ class App extends Component {
           </header>
           <p className="App-intro">
             To get started, edit <code>src/App.js</code> and save to reload.<br/>
-            <code>This should reflect after the push</code>
+            <code>"This should reflect after the push"</code>
           </p>
         </div>
       // </Mui>
