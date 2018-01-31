@@ -1,0 +1,7 @@
+- args:
+    sql: CREATE TABLE "1"("item_name" text NOT NULL, "cost" text NOT NULL, "quantity"
+      numeric NOT NULL, "sno" serial NOT NULL, PRIMARY KEY ("sno") )
+  type: run_sql
+- args:
+    name: "1"
+  type: add_existing_table_or_view
