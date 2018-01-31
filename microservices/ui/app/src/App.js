@@ -43,7 +43,7 @@ function Test(props){
 const Redirect = () => (
   <Switch>
     <Route exact path="/" component={App}/>
-    <Route path="/testRoute" component={Test}/>
+    <Route exact path="/testroute" component={Test}/>
   </Switch>
 );
 
