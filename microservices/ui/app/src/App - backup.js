@@ -9,6 +9,8 @@ import IconButton from 'material-ui/IconButton';
 
 import AtomIcon from 'material-ui/svg-icons/hardware/toys';
 
+
+import logo from './logo.svg';
 import './App.css';
 
 const muiTheme = getMuiTheme({
@@ -19,40 +21,22 @@ const muiTheme = getMuiTheme({
 });
 
 
-class APITest extends Component {
-  constructor(props)
-  {
-  	super(props);
-  	this.state = {
-  		message: 'awaiting response from server...',
-  	};
-  }
-
-  fetchMessage() {
-  	fetch(
-  		'https://app.cramping38.hasura-app.io/json', 
-  		{
-  			method: "GET",
-  		}
-  	).then(response => {
-  		if(response.ok)
-	  		return response.json();
-	  	else
-	  		return {message: "There is a network connectivity problem! Request Error code: " + response.status}
-  	}).then(result => {
-  		this.setState({message: result['message']});
-  	})
-  }
-
-  componentDidMount() {
-  	this.fetchMessage();
-  }
-
+class App extends Component {
   render() {
     return (
       <Mui muiTheme={muiTheme}>
-        <div>
-        	{this.state.message}
+        <div className="App">
+          <header className="App-header">
+            <img src={logo} className="App-logo" alt="logo" />
+            <h1 className="App-title">Welcome to React</h1>
+          </header>
+          <p className="App-intro">
+            To get started, edit <code>src/App.js</code> and save to reload.<br/>
+            <code>"This should reflect after the push"</code>
+          </p>
+      		<IconButton tooltip="Go to Test Route" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 0}} href="/testroute">
+				<AtomIcon color={muiTheme.palette.primary1Color}/>
+			</IconButton>
         </div>
       </Mui>
     );
@@ -60,7 +44,7 @@ class APITest extends Component {
 }
 
 
-function RouteTest(props){
+function Test(props){
   return(
   	<Mui muiTheme={muiTheme}>
 	    <h4>
@@ -74,21 +58,14 @@ function RouteTest(props){
 }
 
 
-function Home(props){
-	return(
-		<h4>
-			Work in progress... Try /testapi or /testroute
-		</h4>);
-}
-
-
 const Redirect = () => (
   <Switch>
-    <Route exact path="/testapi" component={APITest}/>
-    <Route exact path="/testroute" component={RouteTest}/>
-    <Route path="/" component={Home}/>
+    <Route exact path="/" component={App}/>
+    <Route exact path="/testroute" component={Test}/>
   </Switch>
 );
 
 
 export default Redirect;
+
+// export default App;
