@@ -23,7 +23,7 @@ def login():
 	#password=request.form[password]
 	username='Gauri'
 	password='password'
-	res=requests.post(auth.cramping38.hasura-app.io/login,{'username':username,'password':password})	
+	res=requests.post('auth.cramping38.hasura-app.io/login',{'username':username,'password':password})	
 	res=res.json()
 	print(res.text)
 	return "Login-done?"	
