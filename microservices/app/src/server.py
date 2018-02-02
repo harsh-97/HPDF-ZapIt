@@ -26,5 +26,5 @@ def login():
 	res=requests.post('auth.cramping38.hasura-app.io/login',{'username':username,'password':password})	
 	res=res.json()
 	print(res.text) '''
-	return jsonify(username=username,password=password)	
+	return jsonify({'username': username,'password': password})	
 
