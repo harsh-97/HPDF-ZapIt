@@ -21,6 +21,8 @@ def json_message():
 def login():
 	#username=request.form[username]
 	#password=request.form[password]
+	username='Gauri'
+	password='password'
 	res=requests.post(auth.cramping38.hasura-app.io/login,{'username':username,'password':password})	
 	res=res.json()
 	print(res.text)
