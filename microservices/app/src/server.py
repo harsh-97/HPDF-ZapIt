@@ -17,14 +17,14 @@ def json_message():
 
 #Login
 
-@app.route('/login',methods=['GET'])
+@app.route('/login',methods=['POST'])
 def login():
-	#username=request.form[username]
-	#password=request.form[password]
-	username='Gauri'
-	password='password'
+	username=request.form[username]
+	password=request.form[password]
+	'''username='Gauri'
+	password='password' 
 	res=requests.post('auth.cramping38.hasura-app.io/login',{'username':username,'password':password})	
 	res=res.json()
-	print(res.text)
-	return "Login-done?"	
+	print(res.text) '''
+	return jsonify(username=username,password=password)	
 
