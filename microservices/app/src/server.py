@@ -41,7 +41,7 @@ def userTables():
 	        ],
 	        "where": {
 	            "user_id": {
-	                "$eq": "user_id"
+	                "$eq": user_id
 	            }
 	        }
 	    }
