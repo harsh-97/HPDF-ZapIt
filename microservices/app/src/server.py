@@ -44,15 +44,11 @@ def userTables():
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	#Using the response to fetch table names that a user has
 	resp=resp.json()
-
-	count=0
-	for i in range (len(resp)):
+	details={}
+	for i in range(len(resp)):
 		table_id=resp[i]['table_id']
-		table_details(table_id)
-
-		count=count+1
-	print("hello2",count)
-	return(count)
+		details[table_id] =table_details(table_id)
+	return (json.dumps(details))
 
 
 
@@ -86,6 +82,6 @@ def table_details(table_id):
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	
 	# resp.content contains the json response.
-	print(resp.content)
-	print("hello1")
-	return("Hello")
+	resp = resp.json()
+	print(resp)
+	return(resp[0])
