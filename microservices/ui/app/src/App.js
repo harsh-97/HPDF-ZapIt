@@ -7,7 +7,7 @@ import {blue500} from 'material-ui/styles/colors';
 
 import IconButton from 'material-ui/IconButton';
 
-import AtomIcon from 'material-ui/svg-icons/hardware/toys';
+import PinWheelIcon from 'material-ui/svg-icons/hardware/toys';
 
 import './App.css';
 
@@ -36,32 +36,47 @@ class Login extends Component {
 	}
 
 	doLogin() {
-	  	fetch(
-	  		'https://app.cramping38.hasura-app.io/login', 
-	  		{
-	  			method: "POST",
-	  			body: {
-	  				'username': this.state.username,
-	  				'password': this.state.password,
-	  			},
-	  		}
-	  	).then(response => {
+		var url = "https://auth.cramping38.hasura-app.io/v1/login";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+		    "provider": "username",
+		    "data": {
+		        "username": this.state.username,
+		        "password": this.state.password,
+		    }
+		};
+
+		requestOptions.body = JSON.stringify(body);
+
+	  	fetch(url, requestOptions
+  		).then(response => {
 	  		if(response.ok)
-	  		{
-	  			this.setState({status: 0});
-		  		return response.json();
-	  		}
-		  	else
-		  	{
-		  		this.setState({status: 1});
-		  		return {message: "There is a network connectivity problem! Request Error code: " + response.status}
-		  	}
-	  	}).then(result => {
-	  		if(this.state.status)
-	  			this.setState({message: result['message']});
+	  			this.setState({'loginStatus': 1});
 	  		else
-	  			this.setState({message: "Username: " + result['username'] + "\nPassword: " + result['password']});
+	  			this.setState({'loginStatus': 0});
+	  		return response.json();
+	  	}).then(result => {
+	  		if(this.state.loginStatus)
+  			{
+	  			this.setState({message: "Username: " + result['username'] + "  Hasura_ID: " + result['hasura_id'] + "  Auth Token: " + result['auth_token']});
+	  			var auth_token = result.auth_token;
+	  			window.localStorage.setItem('HASURA_AUTH_TOKEN', auth_token);
+	  			alert("Saved auth_token: " + window.localStorage.getItem('HASURA_AUTH_TOKEN'));
+  			}
+
+	  		else
+	  			this.setState({message: "Error Message: " + result['message'] + "  Error Code: " + result['code']});
 	  	})
+	  	.catch(error => {
+	  		this.setState({message: "Error: " + error});
+	  	});
 	}
 
 	handleChange(event) {
@@ -75,7 +90,6 @@ class Login extends Component {
 	}
 
 	handleSubmit(event) {
-		alert("Attempted to submit!" + "Username: " + this.state.username + "And password was: " + this.state.password);
 		this.doLogin();
 		event.preventDefault();
 	}
@@ -159,7 +173,7 @@ function RouteTest(props){
     	Test Route Successful!
     	</h4>
     	<IconButton tooltip="Go to Index" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 0, marginLeft: '4%'}} href="/">
-				<AtomIcon color={muiTheme.palette.primary1Color}/>
+				<PinWheelIcon color={muiTheme.palette.primary1Color}/>
 		</IconButton>
 	</Mui>
     );
