@@ -19,6 +19,98 @@ const muiTheme = getMuiTheme({
 });
 
 
+
+class Login extends Component {
+	constructor(props)
+	{
+		super(props);
+		this.state = {
+			username: '',
+			password: '',
+			message: 'Not logged in yet',
+		};
+
+		this.handleChange = this.handleChange.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+
+	}
+
+	doLogin() {
+	  	fetch(
+	  		'https://app.cramping38.hasura-app.io/login', 
+	  		{
+	  			method: "POST",
+	  			body: {
+	  				'username': this.state.username,
+	  				'password': this.state.password,
+	  			},
+	  		}
+	  	).then(response => {
+	  		if(response.ok)
+	  		{
+	  			this.setState({status: 0});
+		  		return response.json();
+	  		}
+		  	else
+		  	{
+		  		this.setState({status: 1});
+		  		return {message: "There is a network connectivity problem! Request Error code: " + response.status}
+		  	}
+	  	}).then(result => {
+	  		if(this.state.status)
+	  			this.setState({message: result['message']});
+	  		else
+	  			this.setState({message: "Username: " + result['username'] + "\nPassword: " + result['password']});
+	  	})
+	}
+
+	handleChange(event) {
+		var target = event.target;
+		var value = target.value;
+		var name = target.name;
+
+		this.setState({
+			[name]: value,
+		});
+	}
+
+	handleSubmit(event) {
+		alert("Attempted to submit!" + "Username: " + this.state.username + "And password was: " + this.state.password);
+		this.doLogin();
+		event.preventDefault();
+	}
+
+	render() {
+		return(
+			<Mui muiTheme={muiTheme}>
+				<h4>Login</h4>
+				<form onSubmit={this.handleSubmit}>
+					<input 
+						name="username" 
+						type="text" 
+						value={this.state.username} 
+						onChange={this.handleChange}
+					/>			
+					<input 
+						name="password" 
+						type="password" 
+						value={this.state.password} 
+						onChange={this.handleChange}
+					/>
+					<input 
+						name="submit" 
+						type="submit" 
+						value="Login"
+					/>
+				</form>
+				<br/>
+				{this.state.message}
+			</Mui>
+		);
+	}
+}
+
+
 class APITest extends Component {
   constructor(props)
   {
@@ -86,6 +178,7 @@ const Redirect = () => (
   <Switch>
     <Route exact path="/testapi" component={APITest}/>
     <Route exact path="/testroute" component={RouteTest}/>
+    <Route exact path="/login" component={Login}/>
     <Route path="/" component={Home}/>
   </Switch>
 );
