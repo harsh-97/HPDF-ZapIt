@@ -1,0 +1,4 @@
+- args:
+    role: anonymous
+    table: Table_details
+  type: drop_select_permission
