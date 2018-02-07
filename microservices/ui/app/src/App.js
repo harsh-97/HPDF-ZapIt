@@ -3,7 +3,8 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Mui from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
-import {blue500} from 'material-ui/styles/colors';
+import {red500} from 'material-ui/styles/colors';
+
 
 import IconButton from 'material-ui/IconButton';
 
@@ -13,11 +14,10 @@ import './App.css';
 
 const muiTheme = getMuiTheme({
 		palette: {
-			primary1Color: blue500,
+			primary1Color: red500,
 		},
 	    fontFamily: 'Arial, sans-serif',
 });
-
 
 
 class Login extends Component {
@@ -142,6 +142,81 @@ class Login extends Component {
 }
 
 
+function UnpackTableList(props){
+	const data = props.data;
+	const listTables = Object.entries(data).map(([key, table]) =>
+			<div key={key}>{table[0]}<hr/></div>
+		);
+
+	return (
+		<div>{listTables}</div>
+		);
+}
+
+
+class Sidebar extends Component {
+	constructor(props)
+	{
+		super(props);
+		this.state = {
+			username: props.username,
+			hasura_id: props.hasura_id,
+			tableData: {
+				'0': ['Table 1'],
+				'1': ['Table 2'],
+				'2': ['Table 3'],
+			},
+		};
+	}
+
+	fetchTableList() {
+		var url = "https://app.cramping38.hasura-app.io/user-tables";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+			"user_id": this.state.hasura_id
+		} 
+
+		requestOptions.body = JSON.stringify(body);
+
+		fetch(url, requestOptions)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(result) {
+			alert(JSON.stringify(result));
+			this.setState({tableData: result});
+		})
+		.catch(function(error) {
+			console.log('Request Failed:' + error);
+		});
+	}
+
+	componentDidMount() {
+		this.fetchTableList();
+	}
+
+	render()
+	{
+		return(
+			<div className="sidebar" style={{background: muiTheme.palette.primary1Color}}>
+				ZapIt<br/>
+				{this.state.username}<br/>
+				<hr/>
+				<hr/>
+				<UnpackTableList data={this.state.tableData}/>
+			</div>
+		);
+	}
+}
+
+
 class Dashboard extends Component {
 	constructor(props)
 	{
@@ -190,18 +265,17 @@ class Dashboard extends Component {
 					this.state.auth_token === null ?
 					<Redirect to="/login"/>
 					:
-					<div>
-						<h4>
-							Work in progress... Try /login
-						</h4>
-						<h4>Dashboard will come here</h4>
-						Username: {this.state.username} <br/>
-						Hasura ID: {this.state.hasura_id} <br/>
-						Auth Token: {this.state.auth_token} <br/>
-						<br/>
-				    	<IconButton tooltip="Logout" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} onClick={this.doLogout}>
-							<PinWheelIcon color={muiTheme.palette.primary1Color}/>
-						</IconButton> <br/>		
+					<div className="dashboard">
+						<Sidebar username={this.state.username} hasura_id={this.state.hasura_id}/>
+						<div className="tablespace">
+							Username: {this.state.username} <br/>
+							Hasura ID: {this.state.hasura_id} <br/>
+							Auth Token: {this.state.auth_token} <br/>
+							<br/>
+					    	<IconButton tooltip="Logout" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} onClick={this.doLogout}>
+								<PinWheelIcon color={muiTheme.palette.primary1Color}/>
+							</IconButton> <br/>
+						</div>		
 					</div>
 				}
 			</Mui>
