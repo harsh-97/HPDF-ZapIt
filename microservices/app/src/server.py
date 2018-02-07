@@ -87,12 +87,11 @@ def table_details(table_id):
 	return(resp[0])
 
 #get user defined table details 
-@app.route('/fetch-data',methods=['GET'])
+@app.route('/fetch-data',methods=['POST'])
 def fetch_table_data():
-	table_id='1'
-	'''table_id=request.json()
+	table_id=request.form;
 	table_id=table_id['table_id']
-	print(table_id)'''
+	print(table_id)
 	# This is the url to which the query is made
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 
