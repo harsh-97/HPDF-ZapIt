@@ -17,15 +17,13 @@ def json_message():
     return jsonify(message="Hello World")
 
 
-
 #Printing the table details
 @app.route('/user-tables',methods=['POST'])
 def userTables():
 	#Getting the table ids from the user-tables
 	url = "https://data.cramping38.hasura-app.io/v1/query"
-	user_id=request.json()
+	user_id=request.form
 	user_id=user_id['user_id']
-	print(user_id)
 	requestPayload = {
 	    "type": "select",
 	    "args": {
@@ -57,10 +55,8 @@ def userTables():
 
 
 def table_details(table_id):
-	table_id=request
 
 	url = "https://data.cramping38.hasura-app.io/v1/query"
-
 	requestPayload = {
 	    "type": "select",
 	    "args": {
@@ -77,7 +73,6 @@ def table_details(table_id):
 	        }
 	    }
 	}
-
 	# Setting headers
 	headers = {
 	    "Content-Type": "application/json",
@@ -86,7 +81,6 @@ def table_details(table_id):
 
 	# Make the query and store response in resp
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
-	
 	# resp.content contains the json response.
 	resp = resp.json()
 	print(resp)
