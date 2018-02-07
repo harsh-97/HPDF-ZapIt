@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Mui from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
@@ -27,12 +27,12 @@ class Login extends Component {
 		this.state = {
 			username: '',
 			password: '',
-			message: 'Not logged in yet',
+			message: '',
+			loggedIn: 0,
 		};
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
-
 	}
 
 	doLogin() {
@@ -57,25 +57,37 @@ class Login extends Component {
 
 	  	fetch(url, requestOptions
   		).then(response => {
-	  		if(response.ok)
-	  			this.setState({'loginStatus': 1});
-	  		else
-	  			this.setState({'loginStatus': 0});
+	  		this.setState({username: '', password: ''});
 	  		return response.json();
 	  	}).then(result => {
-	  		if(this.state.loginStatus)
-  			{
-	  			this.setState({message: "Username: " + result['username'] + "  Hasura_ID: " + result['hasura_id'] + "  Auth Token: " + result['auth_token']});
-	  			var auth_token = result.auth_token;
-	  			window.localStorage.setItem('HASURA_AUTH_TOKEN', auth_token);
-	  			alert("Saved auth_token: " + window.localStorage.getItem('HASURA_AUTH_TOKEN'));
-  			}
-
+	  		if(result.auth_token)
+	  		{
+	  			window.localStorage.setItem('HASURA_AUTH_TOKEN', result.auth_token);
+	  			window.localStorage.setItem('HASURA_ID', result.hasura_id);
+	  			window.localStorage.setItem('USERNAME', result.username);
+	  			this.setState({'loggedIn': 1});
+	  		}
 	  		else
-	  			this.setState({message: "Error Message: " + result['message'] + "  Error Code: " + result['code']});
+	  		{
+	  			if(result['code']==='invalid-creds')
+	  			{
+	  				this.setState({message: "Invalid login credentials. Check your username and password"});
+	  			}
+	  			else if(result['code']==='invalid-username')
+	  			{
+	  				this.setState({message: "Invalid username. Check your username and try again"});
+	  			}
+	  			else
+	  			{
+	  				this.setState({message: "Whoops! Something went wrong."});
+	  				alert("Error:\nMessage: " + result['message'] + "\nError Code: " + result['code']);
+	  			}
+	  			this.setState({'loggedIn': 0});
+	  		}
 	  	})
 	  	.catch(error => {
-	  		this.setState({message: "Error: " + error});
+	  		this.setState({username: '', password: '', message: "Whoops! Something went wrong. Check network connectivity"});
+	  		alert("Error: " + error);
 	  	});
 	}
 
@@ -84,118 +96,143 @@ class Login extends Component {
 		var value = target.value;
 		var name = target.name;
 
-		this.setState({
-			[name]: value,
-		});
+		this.setState({[name]: value});
 	}
 
 	handleSubmit(event) {
-		this.doLogin();
 		event.preventDefault();
+		this.doLogin();
 	}
 
 	render() {
 		return(
 			<Mui muiTheme={muiTheme}>
-				<h4>Login</h4>
-				<form onSubmit={this.handleSubmit}>
-					<input 
-						name="username" 
-						type="text" 
-						value={this.state.username} 
-						onChange={this.handleChange}
-					/>			
-					<input 
-						name="password" 
-						type="password" 
-						value={this.state.password} 
-						onChange={this.handleChange}
-					/>
-					<input 
-						name="submit" 
-						type="submit" 
-						value="Login"
-					/>
-				</form>
-				<br/>
-				{this.state.message}
+				{
+					this.state.loggedIn?
+					<Redirect to="/"/>
+					:
+					<div>
+						<h4>Login</h4>
+						<form onSubmit={this.handleSubmit}>
+							<input 
+								name="username" 
+								type="text" 
+								value={this.state.username} 
+								onChange={this.handleChange}
+							/>			
+							<input 
+								name="password" 
+								type="password" 
+								value={this.state.password} 
+								onChange={this.handleChange}
+							/>
+							<input 
+								name="submit" 
+								type="submit" 
+								value="Login"
+							/>
+						</form>
+						<br/>
+						{this.state.message}
+					</div>
+				}
 			</Mui>
 		);
 	}
 }
 
 
-class APITest extends Component {
-  constructor(props)
-  {
-  	super(props);
-  	this.state = {
-  		message: 'awaiting response from server...',
-  	};
-  }
+class Dashboard extends Component {
+	constructor(props)
+	{
+		super(props);
+		this.state = {
+			auth_token: window.localStorage.getItem('HASURA_AUTH_TOKEN'),
+			username: window.localStorage.getItem('USERNAME'),
+			hasura_id: window.localStorage.getItem('HASURA_ID'),
+		};
+		this.handleClick = this.handleClick.bind(this);
+	}
 
-  fetchMessage() {
-  	fetch(
-  		'https://app.cramping38.hasura-app.io/json', 
-  		{
-  			method: "GET",
-  		}
-  	).then(response => {
-  		if(response.ok)
-	  		return response.json();
-	  	else
-	  		return {message: "There is a network connectivity problem! Request Error code: " + response.status}
-  	}).then(result => {
-  		this.setState({message: result['message']});
-  	})
-  }
+	doLogout() {
+		var url = "https://auth.cramping38.hasura-app.io/v1/user/logout";
 
-  componentDidMount() {
-  	this.fetchMessage();
-  }
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json",
+		        "Authorization": "Bearer " + this.state.auth_token
+		    }
+		};
 
-  render() {
-    return (
-      <Mui muiTheme={muiTheme}>
-        <div>
-        	{this.state.message}
-        </div>
-      </Mui>
-    );
-  }
+		fetch(url, requestOptions)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(result) {
+		})
+		.catch(function(error) {
+			console.log('Request Failed:' + error);
+		});
+		
+		window.localStorage.removeItem('HASURA_AUTH_TOKEN');
+		window.localStorage.removeItem('USERNAME');
+		window.localStorage.removeItem('HASURA_ID');
+		this.setState({auth_token: null, username: null, hasura_id: null});
+	}
+
+	handleClick(event) {
+		event.preventDefault();
+		this.doLogout();
+	}
+
+	render()
+	{
+		return(
+			<Mui muiTheme={muiTheme}>
+				{
+					this.state.auth_token === null ?
+					<Redirect to="/login"/>
+					:
+					<div>
+						<h4>
+							Work in progress... Try /login
+						</h4>
+						<h4>Dashboard will come here</h4>
+						Username: {this.state.username} <br/>
+						Hasura ID: {this.state.hasura_id} <br/>
+						Auth Token: {this.state.auth_token} <br/>
+						<br/>
+				    	<IconButton tooltip="Logout" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} onClick={this.handleClick}>
+							<PinWheelIcon color={muiTheme.palette.primary1Color}/>
+						</IconButton> <br/>		
+					</div>
+				}
+			</Mui>
+		);
+	}
 }
 
 
-function RouteTest(props){
-  return(
-  	<Mui muiTheme={muiTheme}>
-	    <h4>
-    	Test Route Successful!
-    	</h4>
-    	<IconButton tooltip="Go to Index" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 0, marginLeft: '4%'}} href="/">
-				<PinWheelIcon color={muiTheme.palette.primary1Color}/>
-		</IconButton>
-	</Mui>
-    );
-}
-
-
-function Home(props){
+function Page404(props) {
 	return(
-		<h4>
-			Work in progress... Try /testapi or /testroute
-		</h4>);
+		<Mui muiTheme={muiTheme}>
+			<h4>Whoops! Looks like you ended up on a wrong page. Go to the Dashboard</h4>
+	    	<IconButton tooltip="Go to Dashboard" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} href="/">
+				<PinWheelIcon color={muiTheme.palette.primary1Color}/>
+			</IconButton> <br/>	
+		</Mui>
+	);
 }
 
 
-const Redirect = () => (
+const Router = () => (
   <Switch>
-    <Route exact path="/testapi" component={APITest}/>
-    <Route exact path="/testroute" component={RouteTest}/>
     <Route exact path="/login" component={Login}/>
-    <Route path="/" component={Home}/>
+    <Route exact path="/" component={Dashboard}/>
+    <Route path="*" component={Page404}/>
   </Switch>
 );
 
 
-export default Redirect;
+export default Router;
