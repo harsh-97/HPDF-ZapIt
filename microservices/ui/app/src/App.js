@@ -151,10 +151,11 @@ class Dashboard extends Component {
 			username: window.localStorage.getItem('USERNAME'),
 			hasura_id: window.localStorage.getItem('HASURA_ID'),
 		};
-		this.handleClick = this.handleClick.bind(this);
+		this.doLogout = this.doLogout.bind(this);
 	}
 
-	doLogout() {
+	doLogout(event) {
+		event.preventDefault();
 		var url = "https://auth.cramping38.hasura-app.io/v1/user/logout";
 
 		var requestOptions = {
@@ -181,11 +182,6 @@ class Dashboard extends Component {
 		this.setState({auth_token: null, username: null, hasura_id: null});
 	}
 
-	handleClick(event) {
-		event.preventDefault();
-		this.doLogout();
-	}
-
 	render()
 	{
 		return(
@@ -203,7 +199,7 @@ class Dashboard extends Component {
 						Hasura ID: {this.state.hasura_id} <br/>
 						Auth Token: {this.state.auth_token} <br/>
 						<br/>
-				    	<IconButton tooltip="Logout" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} onClick={this.handleClick}>
+				    	<IconButton tooltip="Logout" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} onClick={this.doLogout}>
 							<PinWheelIcon color={muiTheme.palette.primary1Color}/>
 						</IconButton> <br/>		
 					</div>
