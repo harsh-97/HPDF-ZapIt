@@ -19,11 +19,13 @@ def json_message():
 
 
 #Printing the table details
-@app.route('/user-tables',methods=['GET'])
+@app.route('/user-tables',methods=['POST'])
 def userTables():
 	#Getting the table ids from the user-tables
 	url = "https://data.cramping38.hasura-app.io/v1/query"
-	user_id=2
+	user_id=request.json()
+	user_id=user_id['user_id']
+	print(user_id)
 	requestPayload = {
 	    "type": "select",
 	    "args": {
@@ -39,7 +41,8 @@ def userTables():
 	    }
 	}
 	headers = {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
 	}
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	#Using the response to fetch table names that a user has
@@ -54,6 +57,8 @@ def userTables():
 
 
 def table_details(table_id):
+	table_id=request
+
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 
 	requestPayload = {
@@ -75,7 +80,8 @@ def table_details(table_id):
 
 	# Setting headers
 	headers = {
-	    "Content-Type": "application/json"
+	    "Content-Type": "application/json",
+	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
 	}
 
 	# Make the query and store response in resp
@@ -85,3 +91,35 @@ def table_details(table_id):
 	resp = resp.json()
 	print(resp)
 	return(resp[0])
+
+#get user defined table details 
+@app.route('/fetch-data',methods=['GET'])
+def fetch_table_data():
+	table_id='1'
+	'''table_id=request.json()
+	table_id=table_id['table_id']
+	print(table_id)'''
+	# This is the url to which the query is made
+	url = "https://data.cramping38.hasura-app.io/v1/query"
+
+	# This is the json payload for the query
+	requestPayload = {
+	    "type": "select",
+	    "args": {
+	        "table": table_id,
+	        "columns": [
+	            "*"
+	        ]
+	    }
+	}
+
+	headers = {
+	    "Content-Type": "application/json",
+	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	}
+
+	# Make the query and store response in resp
+	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp = resp.json()
+	print(resp)
+	return(json.dumps(resp))
