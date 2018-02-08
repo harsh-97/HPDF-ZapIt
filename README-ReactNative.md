@@ -2,9 +2,9 @@ The README for the ReactJS section of the product
 
 No changes have been made, as of yet.
 
-Authenticated test user credentials:
-Username: Test1
-Password: password
+Authenticated test user credentials:  
+  + Username: Test1  
+  + Password: password
 
 ### Premise
 
