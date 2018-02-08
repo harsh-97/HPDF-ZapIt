@@ -3,16 +3,16 @@
 This is the README for the ReactJS section of the product.
 The ReactJS section can be reached by the url: `https://ui.cramping38.hasura-app.io`
 It has two main pages, and handles requests to invalid urls as well.
-The pages are
-	- /
-	- /login
+The pages are  
+  + /  
+  + /login  
 
 Any anonymous user is redirected to `/login`
 `/` is known as the Dashboard and authenticated users are redirected here.
 
-Authenticated test user credentials:
-Username: Test1
-Password: password
+Authenticated test user credentials:  
+   + Username: Test1  
+   + Password: password  
 
 ### Premise
 
