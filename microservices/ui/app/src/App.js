@@ -4,6 +4,7 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import Mui from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
 import {orange200, white} from 'material-ui/styles/colors';
+import FlatButton from 'material-ui/FlatButton';
 
 
 import IconButton from 'material-ui/IconButton';
@@ -212,27 +213,27 @@ class Sidebar extends Component {
 	{
 		return(
 			<div className="sidebar" style={{background: muiTheme.palette.primary1Color}}>
-				ZapIt<br/>
-				{this.state.username}<br/>
-				<hr/>
-				<hr/>
-				{
-					this.state.fetched ?
-						Object.keys(this.state.tableData).length === 0 ?
-						<div>
-							<span>No tables found!</span><br/>
-							<span>Create a new table by pressing the button below</span>
-						</div>
+				<div>
+					ZapIt<br/>
+					{this.state.username}<br/>
+					<hr/>
+					<hr/>
+					{
+						this.state.fetched ?
+							Object.keys(this.state.tableData).length === 0 ?
+							<div>
+								<span>No tables found!</span><br/>
+								<span>Create a new table</span>
+							</div>
+							:
+							<UnpackTableList data={this.state.tableData} handleClick={this.handleTableClick}/>
 						:
-						<UnpackTableList data={this.state.tableData} handleClick={this.handleTableClick}/>
-					:
-					<div>
-						<span>{this.state.message}</span>
-					</div>
-				}
-				<IconButton tooltip="Logout" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} onClick={this.doLogout}>
-					<PinWheelIcon color={muiTheme.palette.alternate1Color}/>
-				</IconButton> <br/>
+						<div>
+							<span>{this.state.message}</span>
+						</div>
+					}
+				</div>
+				<FlatButton label="Logout" secondary={true} onClick={this.doLogout}/>
 			</div>
 		);
 	}
@@ -336,7 +337,7 @@ class Tablespace extends Component {
 						Object.keys(this.state.tableData).length === 0 ?
 						<div>
 							<span>No data in table!</span><br/>
-							<span>Insert new data by pressing the button below</span>
+							<span>Insert new data</span>
 						</div>
 						:
 						<UnpackTableData data={this.state.tableData} handleClick={this.handleGridClick}/>
