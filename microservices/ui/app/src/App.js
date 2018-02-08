@@ -241,14 +241,29 @@ class Sidebar extends Component {
 
 function UnpackTableData(props){
 	const data = props.data;
-	// const listTables = Object.entries(data).map(([key, table]) =>
-	// 		<div key={key} tableid={key} datecreated={table['date_created']} datemodified={table['date_last_modified']} onClick={props.handleClick}>
-	// 				{table['table_name']}<hr/>
-	// 		</div>
-	// 	);
+	const columns = Object.keys(data[0]).map((column) =>
+		<th key={column}> {column} </th> 
+		);
+
+	const tableInner = data.map((row) =>
+			<tr key={row['sno']}>
+				{
+					Object.entries(row).map(([key, value]) =>
+						<td key={key} onClick={props.handleClick}>
+							{value}
+						</td>
+					)
+				}
+			</tr>
+		);
 
 	return (
-		<div>{JSON.stringify(data)}</div>
+		<table>
+			<tr>
+				{columns}
+			</tr>
+			{tableInner}
+		</table>
 		);
 }
 
@@ -263,6 +278,7 @@ class Tablespace extends Component {
 			fetched: false,
 			message: 'Fetching data from server...',
 		}
+		this.handleGridClick = this.handleGridClick.bind(this);
 	}
 
 	fetchTableData(table_id) {
@@ -308,6 +324,10 @@ class Tablespace extends Component {
 		}
 	}
 
+	handleGridClick() {
+		alert("Clicked!");
+	}
+
 	render() {
 		return (
 			<div className="tablespace">
@@ -319,7 +339,7 @@ class Tablespace extends Component {
 							<span>Insert new data by pressing the button below</span>
 						</div>
 						:
-						<UnpackTableData data={this.state.tableData}/>
+						<UnpackTableData data={this.state.tableData} handleClick={this.handleGridClick}/>
 					:
 					<div>
 						<span>{this.state.message}</span>
