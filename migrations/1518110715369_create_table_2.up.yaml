@@ -1,0 +1,7 @@
+- args:
+    sql: CREATE TABLE "2"("title" text NOT NULL, "artist" text NOT NULL, "song_id"
+      serial NOT NULL, PRIMARY KEY ("song_id") )
+  type: run_sql
+- args:
+    name: "2"
+  type: add_existing_table_or_view

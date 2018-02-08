@@ -82,14 +82,14 @@ class Login extends Component {
 	  			else
 	  			{
 	  				this.setState({message: "Whoops! Something went wrong."});
-	  				alert("Error:\nMessage: " + result['message'] + "\nError Code: " + result['code']);
+	  				console.log("Error:\nMessage: " + result['message'] + "\nError Code: " + result['code']);
 	  			}
 	  			this.setState({'loggedIn': 0});
 	  		}
 	  	})
 	  	.catch(error => {
 	  		this.setState({username: '', password: '', message: "Whoops! Something went wrong. Check network connectivity"});
-	  		alert("Error: " + error);
+	  		console.log("Error: " + error);
 	  	});
 	}
 
@@ -239,16 +239,33 @@ class Sidebar extends Component {
 }
 
 
+function UnpackTableData(props){
+	const data = props.data;
+	// const listTables = Object.entries(data).map(([key, table]) =>
+	// 		<div key={key} tableid={key} datecreated={table['date_created']} datemodified={table['date_last_modified']} onClick={props.handleClick}>
+	// 				{table['table_name']}<hr/>
+	// 		</div>
+	// 	);
+
+	return (
+		<div>{JSON.stringify(data)}</div>
+		);
+}
+
+
 class Tablespace extends Component {
 	constructor(props)
 	{
 		super(props);
 		this.state = {
 			table_id: props.table_id,
+			tabledata: {},
+			fetched: false,
+			message: 'Fetching data from server...',
 		}
 	}
 
-	fetchTableData() {
+	fetchTableData(table_id) {
 		var url = "https://app.cramping38.hasura-app.io/fetch-data";
 
 		var requestOptions = {
@@ -259,7 +276,7 @@ class Tablespace extends Component {
 		};
 
 		var body = {
-			"table_id": this.state.table_id
+			"table_id": table_id,
 		} 
 
 		var that = this;
@@ -274,14 +291,40 @@ class Tablespace extends Component {
 			that.setState({fetched: true, tableData: result});
 		})
 		.catch(function(error) {
-			console.log('Request Failed:' + error);
+			that.setState({message: 'Failed to fetch from servers. Please try again later'});
+			console.log('Failed: ' + error);
 		});
+	}
+
+	componentDidMount() {
+		this.fetchTableData(this.state.table_id);
+	}
+
+	componentWillReceiveProps(nextProps) {
+		if(this.state.table_id !== nextProps.table_id)
+		{
+			this.fetchTableData(nextProps.table_id);
+			this.setState({table_id: nextProps.table_id});
+		}
 	}
 
 	render() {
 		return (
 			<div className="tablespace">
-		    	{this.state.table_id}
+		    	{
+					this.state.fetched ?
+						Object.keys(this.state.tableData).length === 0 ?
+						<div>
+							<span>No data in table!</span><br/>
+							<span>Insert new data by pressing the button below</span>
+						</div>
+						:
+						<UnpackTableData data={this.state.tableData}/>
+					:
+					<div>
+						<span>{this.state.message}</span>
+					</div>
+				}
 			</div>
 		);
 	}
