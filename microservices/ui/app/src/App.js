@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Mui from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
-import {red500} from 'material-ui/styles/colors';
+import {orange200} from 'material-ui/styles/colors';
 
 
 import IconButton from 'material-ui/IconButton';
@@ -12,9 +12,10 @@ import PinWheelIcon from 'material-ui/svg-icons/hardware/toys';
 
 import './App.css';
 
+
 const muiTheme = getMuiTheme({
 		palette: {
-			primary1Color: red500,
+			primary1Color: orange200,
 		},
 	    fontFamily: 'Arial, sans-serif',
 });
@@ -145,7 +146,9 @@ class Login extends Component {
 function UnpackTableList(props){
 	const data = props.data;
 	const listTables = Object.entries(data).map(([key, table]) =>
-			<div key={key}>{table[0]}<hr/></div>
+			<div key={key} datecreated={table['date_created']} datemodified={table['date_last_modified']}>
+					{table['table_name']}<hr/>
+			</div>
 		);
 
 	return (
@@ -161,11 +164,8 @@ class Sidebar extends Component {
 		this.state = {
 			username: props.username,
 			hasura_id: props.hasura_id,
-			tableData: {
-				'0': ['Table 1'],
-				'1': ['Table 2'],
-				'2': ['Table 3'],
-			},
+			tableData: {'0': 'Fetching tables'},
+			fetched: false,
 		};
 	}
 
@@ -183,6 +183,8 @@ class Sidebar extends Component {
 			"user_id": this.state.hasura_id
 		} 
 
+		var that = this;
+
 		requestOptions.body = JSON.stringify(body);
 
 		fetch(url, requestOptions)
@@ -190,8 +192,7 @@ class Sidebar extends Component {
 			return response.json();
 		})
 		.then(function(result) {
-			alert(JSON.stringify(result));
-			this.setState({tableData: result});
+			that.setState({fetched: true, tableData: result});
 		})
 		.catch(function(error) {
 			console.log('Request Failed:' + error);
@@ -210,7 +211,20 @@ class Sidebar extends Component {
 				{this.state.username}<br/>
 				<hr/>
 				<hr/>
-				<UnpackTableList data={this.state.tableData}/>
+				{
+					this.state.fetched ?
+						Object.keys(this.state.tableData).length === 0 ?
+						<div>
+							<span>No tables found!</span><br/>
+							<span>Create a new table by pressing the button below</span>
+						</div>
+						:
+						<UnpackTableList data={this.state.tableData}/>
+					:
+					<div>
+						<span>Fetching tables...</span>
+					</div>
+				}
 			</div>
 		);
 	}
