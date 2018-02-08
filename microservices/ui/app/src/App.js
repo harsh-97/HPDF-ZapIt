@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Mui from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
-import {orange200} from 'material-ui/styles/colors';
+import {orange200, white} from 'material-ui/styles/colors';
 
 
 import IconButton from 'material-ui/IconButton';
@@ -16,6 +16,7 @@ import './App.css';
 const muiTheme = getMuiTheme({
 		palette: {
 			primary1Color: orange200,
+			alternate1Color: white,
 		},
 	    fontFamily: 'Arial, sans-serif',
 });
@@ -146,7 +147,7 @@ class Login extends Component {
 function UnpackTableList(props){
 	const data = props.data;
 	const listTables = Object.entries(data).map(([key, table]) =>
-			<div key={key} datecreated={table['date_created']} datemodified={table['date_last_modified']}>
+			<div key={key} tableid={key} datecreated={table['date_created']} datemodified={table['date_last_modified']} onClick={props.handleClick}>
 					{table['table_name']}<hr/>
 			</div>
 		);
@@ -168,6 +169,8 @@ class Sidebar extends Component {
 			fetched: false,
 			message: 'Fetching tables...',
 		};
+		this.handleTableClick = props.handleTableClick;
+		this.doLogout = props.doLogout;
 	}
 
 	fetchTableList() {
@@ -221,12 +224,64 @@ class Sidebar extends Component {
 							<span>Create a new table by pressing the button below</span>
 						</div>
 						:
-						<UnpackTableList data={this.state.tableData}/>
+						<UnpackTableList data={this.state.tableData} handleClick={this.handleTableClick}/>
 					:
 					<div>
 						<span>{this.state.message}</span>
 					</div>
 				}
+				<IconButton tooltip="Logout" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} onClick={this.doLogout}>
+					<PinWheelIcon color={muiTheme.palette.alternate1Color}/>
+				</IconButton> <br/>
+			</div>
+		);
+	}
+}
+
+
+class Tablespace extends Component {
+	constructor(props)
+	{
+		super(props);
+		this.state = {
+			table_id: props.table_id,
+		}
+	}
+
+	fetchTableData() {
+		var url = "https://app.cramping38.hasura-app.io/fetch-data";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+			"table_id": this.state.table_id
+		} 
+
+		var that = this;
+
+		requestOptions.body = JSON.stringify(body);
+
+		fetch(url, requestOptions)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(result) {
+			that.setState({fetched: true, tableData: result});
+		})
+		.catch(function(error) {
+			console.log('Request Failed:' + error);
+		});
+	}
+
+	render() {
+		return (
+			<div className="tablespace">
+		    	{this.state.table_id}
 			</div>
 		);
 	}
@@ -241,8 +296,10 @@ class Dashboard extends Component {
 			auth_token: window.localStorage.getItem('HASURA_AUTH_TOKEN'),
 			username: window.localStorage.getItem('USERNAME'),
 			hasura_id: window.localStorage.getItem('HASURA_ID'),
+			table_id: null,
 		};
 		this.doLogout = this.doLogout.bind(this);
+		this.handleTableClick = this.handleTableClick.bind(this);
 	}
 
 	doLogout(event) {
@@ -273,34 +330,12 @@ class Dashboard extends Component {
 		this.setState({auth_token: null, username: null, hasura_id: null});
 	}
 
-	fetchTableData() {
-		var url = "https://app.cramping38.hasura-app.io/user-tables";
+	handleTableClick(event) {
+		event.preventDefault();
 
-		var requestOptions = {
-		    "method": "POST",
-		    "headers": {
-		        "Content-Type": "application/json"
-		    }
-		};
-
-		var body = {
-			"user_id": this.state.hasura_id
-		} 
-
-		var that = this;
-
-		requestOptions.body = JSON.stringify(body);
-
-		fetch(url, requestOptions)
-		.then(function(response) {
-			return response.json();
-		})
-		.then(function(result) {
-			that.setState({fetched: true, tableData: result});
-		})
-		.catch(function(error) {
-			console.log('Request Failed:' + error);
-		});
+		var target = event.target;
+		var value = target.getAttribute('tableid');
+		this.setState({table_id: value});
 	}
 
 	render()
@@ -312,16 +347,15 @@ class Dashboard extends Component {
 					<Redirect to="/login"/>
 					:
 					<div className="dashboard">
-						<Sidebar username={this.state.username} hasura_id={this.state.hasura_id}/>
-						<div className="tablespace">
-							Username: {this.state.username} <br/>
-							Hasura ID: {this.state.hasura_id} <br/>
-							Auth Token: {this.state.auth_token} <br/>
-							<br/>
-					    	<IconButton tooltip="Logout" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} onClick={this.doLogout}>
-								<PinWheelIcon color={muiTheme.palette.primary1Color}/>
-							</IconButton> <br/>
-						</div>		
+						<Sidebar username={this.state.username} hasura_id={this.state.hasura_id} handleTableClick={this.handleTableClick} doLogout={this.doLogout}/>
+						{
+							this.state.table_id == null ?
+							<div className="tablespace">
+								<span>Select a table</span>
+							</div>
+							:
+							<Tablespace table_id={this.state.table_id}/>		
+						}
 					</div>
 				}
 			</Mui>
