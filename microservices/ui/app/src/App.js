@@ -164,8 +164,9 @@ class Sidebar extends Component {
 		this.state = {
 			username: props.username,
 			hasura_id: props.hasura_id,
-			tableData: {'0': 'Fetching tables'},
+			tableData: {},
 			fetched: false,
+			message: 'Fetching tables...',
 		};
 	}
 
@@ -195,7 +196,8 @@ class Sidebar extends Component {
 			that.setState({fetched: true, tableData: result});
 		})
 		.catch(function(error) {
-			console.log('Request Failed:' + error);
+			that.setState({message: 'Failed to fetch from servers. Please try again later'});
+			console.log('Failed: ' + error);
 		});
 	}
 
@@ -222,7 +224,7 @@ class Sidebar extends Component {
 						<UnpackTableList data={this.state.tableData}/>
 					:
 					<div>
-						<span>Fetching tables...</span>
+						<span>{this.state.message}</span>
 					</div>
 				}
 			</div>
@@ -269,6 +271,36 @@ class Dashboard extends Component {
 		window.localStorage.removeItem('USERNAME');
 		window.localStorage.removeItem('HASURA_ID');
 		this.setState({auth_token: null, username: null, hasura_id: null});
+	}
+
+	fetchTableData() {
+		var url = "https://app.cramping38.hasura-app.io/user-tables";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+			"user_id": this.state.hasura_id
+		} 
+
+		var that = this;
+
+		requestOptions.body = JSON.stringify(body);
+
+		fetch(url, requestOptions)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(result) {
+			that.setState({fetched: true, tableData: result});
+		})
+		.catch(function(error) {
+			console.log('Request Failed:' + error);
+		});
 	}
 
 	render()
