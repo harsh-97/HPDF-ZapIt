@@ -22,7 +22,7 @@ def json_message():
 def userTables():
 	#Getting the table ids from the user-tables
 	url = "https://data.cramping38.hasura-app.io/v1/query"
-	user_id=request.form
+	user_id=request.json
 	user_id=user_id['user_id']
 	requestPayload = {
 	    "type": "select",
@@ -89,7 +89,7 @@ def table_details(table_id):
 #get user defined table details 
 @app.route('/fetch-data',methods=['POST'])
 def fetch_table_data():
-	table_id=request.form;
+	table_id=request.json;
 	table_id=table_id['table_id']
 	print(table_id)
 	# This is the url to which the query is made
