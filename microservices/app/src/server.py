@@ -116,3 +116,30 @@ def fetch_table_data():
 	resp = resp.json()
 	print(resp)
 	return(json.dumps(resp))
+#new table 
+
+@app.route('/new-table',methods=['POST'])
+def create_table():
+	data=request.json;
+	name=data['name']	
+	print(name)
+	col1=data['col1']
+	print(col1)
+	col2=data['col2']
+	print(col2)
+	url = "https://data.cramping38.hasura-app.io/v1/query"
+	requestPayload = {
+    "type" : "run_sql",
+    "args" : {
+        "sql" : ("CREATE TABLE %s(id SERIAL NOT NULL PRIMARY KEY,%s TEXT NOT NULL, %s TEXT);" %(name,col1,col2))
+    	}
+	}
+	headers = {
+	    "Content-Type": "application/json",
+	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	}
+	# Make the query and store response in resp
+	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp = resp.json()
+	print(resp)
+	return(json.dumps(resp))
