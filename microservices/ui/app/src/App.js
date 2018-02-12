@@ -242,28 +242,81 @@ class Sidebar extends Component {
 
 function UnpackTableData(props){
 	const data = props.data;
-	const columns = Object.keys(data[0]).map((column) =>
-		<th key={column}> {column} </th> 
-		);
 
 	const tableInner = data.map((row) =>
-			<tr key={row['sno']}>
+		<tr key={row['sno']}>
+			{
+				Object.entries(row).map(([key, value]) =>
 				{
-					Object.entries(row).map(([key, value]) =>
-						<td key={key} onClick={props.handleClick}>
-							{value}
-						</td>
-					)
-				}
-			</tr>
-		);
+					if(key !== 'sno')
+						if(key === props.editing.colname && row['sno'].toString() === props.editing.sno)
+							{
+								return(
+								<td key={key} colname={key} sno={row['sno']}>
+									<input autoFocus type="text" sno={row['sno']} colname={key} placeholder={value} onBlur={props.handleUpdateBlur}/>
+								</td>
+								);
+							}
+						else
+						{
+							return(
+								<td key={key} colname={key} sno={row['sno']} onClick={props.handleUpdateClick}>
+									{value}
+								</td>
+							);
+						}
+				})
+			}
+			<td key={row['sno']}>
+				<input type="button" sno={row['sno']} value="Delete Row" onClick={props.handleDeleteClick}/>
+			</td>
+		</tr>
+	);
+
+	var firstRow = data[0];
+	firstRow['button'] = undefined;
+
+	const columns = Object.keys(firstRow).map((column) =>
+	{	
+		if(column === 'button')
+			return(<th key='button'></th>);
+		else if(column !== 'sno')
+			return(
+				<th key={column}>
+					{column.split('_').join(' ')}
+				</th>
+			)
+	});
+
+	const newRow = Object.keys(firstRow).map((column) =>
+	{
+		if(column === 'button')
+			return(
+				<td key={firstRow['sno']}>
+					<input type="button" value="Insert Row" onClick={props.handleInsertClick}/>
+				</td>
+			);
+		else if(column !== 'sno')
+			return(
+				<td key={column}>
+					<input type='text' name={column} onChange={props.handleNewRowDataChange} value={props.newRow[column]}/>
+				</td>
+			);
+	});
+
+	delete firstRow['button'];
 
 	return (
 		<table>
+		<tbody>
 			<tr>
 				{columns}
 			</tr>
 			{tableInner}
+			<tr>
+				{newRow}
+			</tr>
+		</tbody>
 		</table>
 		);
 }
@@ -278,8 +331,15 @@ class Tablespace extends Component {
 			tabledata: {},
 			fetched: false,
 			message: 'Fetching data from server...',
+			editing: {sno: undefined, colname: undefined},
+			newRow: {},
 		}
-		this.handleGridClick = this.handleGridClick.bind(this);
+
+		this.handleInsertClick = this.handleInsertClick.bind(this);
+		this.handleUpdateClick = this.handleUpdateClick.bind(this);
+		this.handleUpdateBlur = this.handleUpdateBlur.bind(this);
+		this.handleDeleteClick = this.handleDeleteClick.bind(this);
+		this.handleNewRowDataChange = this.handleNewRowDataChange.bind(this);
 	}
 
 	fetchTableData(table_id) {
@@ -305,7 +365,10 @@ class Tablespace extends Component {
 			return response.json();
 		})
 		.then(function(result) {
-			that.setState({fetched: true, tableData: result});
+			if(result['code'] === 'not-exists')
+				that.setState({message: "The table does not exist!", fetched: false})
+			else
+				that.setState({fetched: true, tableData: result});
 		})
 		.catch(function(error) {
 			that.setState({message: 'Failed to fetch from servers. Please try again later'});
@@ -325,8 +388,72 @@ class Tablespace extends Component {
 		}
 	}
 
-	handleGridClick() {
-		alert("Clicked!");
+	doInsert() {
+		alert("Doing Insert!");
+		this.fetchTableData(this.state.table_id);
+	}
+
+	doUpdate(sno, colname, value) {
+		alert("Doing Update!");
+		alert(colname + " of row " + sno + " will be changed to " + value);
+		this.fetchTableData(this.state.table_id);
+	}
+
+	doDelete(sno) {
+		alert("Doing Delete!");
+		alert("Will delete row " + sno);
+		this.fetchTableData(this.state.table_id);
+	}
+
+	handleInsertClick(event) {
+		if(Object.keys(this.state.newRow).length !== 0)
+		{
+			alert(JSON.stringify(this.state.newRow));
+			this.doInsert();
+			this.setState({newRow: {}})
+		}
+		else
+			alert("Nothing to insert!");
+	}
+
+	handleNewRowDataChange(event) {
+		var target = event.target;
+		var value = target.value;
+		var name = target.name;
+		var tempRow = this.state.newRow
+		
+		if(value === '')
+			delete tempRow[name];
+		else
+			tempRow[name] = value
+		this.setState({newRow: tempRow});
+	}
+
+	handleUpdateClick(event) {
+		var target = event.target;
+		var colname = target.getAttribute('colname');
+		var sno = target.getAttribute("sno");
+
+		this.setState({editing: {sno: sno, colname: colname}});
+	}
+
+	handleUpdateBlur(event) {
+		var target = event.target;
+		var value = target.value;
+		var colname = target.getAttribute('colname');
+		var sno = target.getAttribute("sno");
+
+		this.setState({editing: {sno: undefined, colname: undefined}});
+		if(value !== "")
+			this.doUpdate(sno, colname, value);
+	}
+
+	handleDeleteClick(event) {
+		var target = event.target;
+		var sno = target.getAttribute("sno");
+
+		if(window.confirm("Are you sure!"))
+			this.doDelete(sno);
 	}
 
 	render() {
@@ -340,7 +467,16 @@ class Tablespace extends Component {
 							<span>Insert new data</span>
 						</div>
 						:
-						<UnpackTableData data={this.state.tableData} handleClick={this.handleGridClick}/>
+						<UnpackTableData 
+							data={this.state.tableData} 
+							handleInsertClick={this.handleInsertClick} 
+							handleUpdateClick={this.handleUpdateClick} 
+							handleUpdateBlur={this.handleUpdateBlur}
+							handleDeleteClick={this.handleDeleteClick} 
+							handleNewRowDataChange={this.handleNewRowDataChange} 
+							editing={this.state.editing}
+							newRow={this.state.newRow}
+						/>
 					:
 					<div>
 						<span>{this.state.message}</span>
