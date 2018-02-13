@@ -1,0 +1,3 @@
+- args:
+    name: "9"
+  type: add_existing_table_or_view
