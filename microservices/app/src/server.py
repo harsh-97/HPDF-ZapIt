@@ -12,11 +12,9 @@ def home():
     return "Hasura Hello World"
 
 # Uncomment to add a new URL at /new
-
 @app.route("/json")
 def json_message():
     return jsonify(message="Hello World")
-
 
 #Printing the table details
 @app.route('/user-tables',methods=['POST'])
@@ -131,7 +129,7 @@ def create_table():
 	"name":"Table_details",
 	"columns": {"user_id":user_id,"table_name":table_name , "date_created":datetime.datetime.today().strftime("%Y-%m-%d"), "date_last_modified":datetime.datetime.today().strftime("%Y-%m-%d")}
 	}
-	insert_data(Data)
+	insert_data_table_details(Data)
 	#fetching table_id
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 	requestPayload = {
@@ -243,9 +241,9 @@ def insert_data():
 	print(resp)
 	return(json.dumps(resp))
 
-#insert-table
+#insert-table when new table is formed
 
-def insert_data(data):
+def insert_data_table_details(data):
 	name=data['name']
 	col=data['columns']
 
@@ -316,6 +314,40 @@ def update_table():
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer 267fe32ded6e6afd264014c18ea1727bc8afcf7ec02cd7a4"
 	}
+	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp=resp.json()
+	print(resp)
+	return(json.dumps(resp))
+
+#deleting rows from table
+@app.route('/delete-row',methods=['POST'])
+def delete_rows():
+	data=request.json
+	table_id=data['table_id']
+	sno=data['sno']
+	url = "https://data.cramping38.hasura-app.io/v1/query"
+
+	table_id=str(table_id)
+	requestPayload = {
+	    "type": "delete",
+	    "args": {
+	        "table": table_id,
+	        "where": {
+	            "sno": {
+	            "$eq": sno
+	            
+	        	}
+	        }
+	    }
+	}
+
+	# Setting headers
+	headers = {
+	    "Content-Type": "application/json",
+	    "Authorization": "Bearer 267fe32ded6e6afd264014c18ea1727bc8afcf7ec02cd7a4"
+	}
+
+
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp=resp.json()
 	print(resp)
