@@ -121,10 +121,48 @@ def fetch_table_data():
 @app.route('/new-table',methods=['POST'])
 def create_table():
 	data=request.json;
-	table_id=data['table_id']
 	user_id=data['user_id']
 	table_name=data['table_name']
 	col=data['columns']
+
+	#adding data in table_details
+	#updating the table details
+	insertData={
+	"name":"Table_details",
+	"columns": {"user_id":user_id,"table_name":table_name , "date_created":datetime.datetime.today().strftime("%Y-%m-%d"), "date_last_modified":datetime.datetime.today().strftime("%Y-%m-%d")}
+	}
+	insert_data(insertData)
+	#fetching table_id
+	url = "https://data.cramping38.hasura-app.io/v1/query"
+	requestPayload = {
+	    "type": "select",
+	    "args": {
+	        "table": "Table_details",
+	        "columns": [
+	            "table_id"
+	        ],
+        "where": {
+            "$and": [
+                {
+                    "table_name": table_name
+                },
+                {
+                    "user_id": user_id
+                }
+            ]
+        }
+	    }
+	}
+
+	headers = {
+	    "Content-Type": "application/json",
+	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	}
+	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp = resp.json()
+	print("hhhh",resp)
+	table_id=resp[0]['table_id']
+
 	#creating a sql string
 	#creating a new table
 	sql_string=('CREATE TABLE "%s" (sno  SERIAL NOT NULL PRIMARY KEY ' %(table_id))
@@ -148,18 +186,19 @@ def create_table():
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
 	print(resp)
-	#updating the value in user_details
-	insertData={
-		"name":"User_tables",
-		"columns": {"user_id":user_id, "table_id":table_id}
+
+	#adding in the tracked table
+	table_id=str(table_id)
+	requestPayload = {
+	"type": "add_existing_table_or_view",
+	"args":{
+	    "name": table_id
+	    }
 	}
-	insert_data(insertData)
-	#updating the table details
-	insertData={
-	"name":"Table_details",
-	"columns": {"table_id":table_id, "table_name":table_name , "date_created":datetime.datetime.today().strftime("%Y-%m-%d"), "date_last_modified":datetime.datetime.today().strftime("%Y-%m-%d")}
-	}
-	insert_data(insertData)
+	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp = resp.json()
+	print(resp)
+	return(json.dumps(resp))
 
 
 #insert-table
@@ -175,8 +214,9 @@ def insert_data(data=None):
 	colname=""
 	colvalue=""
 	for key in col.keys():
-		colname=colname+ "'"+key+"'"+", "
-		if(not key.isnumeric()):
+		colname=colname+key+", "
+
+		if(not col[key].isnumeric()):
 			colvalue=colvalue+"'"+col[key]+"'"+", "
 		else:
 			colvalue=colvalue+col[key]+", "
@@ -190,8 +230,9 @@ def insert_data(data=None):
 	requestPayload = {
     "type" : "run_sql",
     "args" : {
-        "sql" :	sql_string
-    	}
+        "sql" :	sql_string,
+
+    	},
 	}
 	headers = {
 	    "Content-Type": "application/json",
