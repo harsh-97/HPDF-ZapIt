@@ -347,8 +347,45 @@ def delete_rows():
 	    "Authorization": "Bearer 267fe32ded6e6afd264014c18ea1727bc8afcf7ec02cd7a4"
 	}
 
-
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp=resp.json()
+	print(resp)
+	return(json.dumps(resp))
+#droping table
+@app.route('/drop-table',methods=['POST'])
+def drop_table():
+	data=request.json;
+	table_id=data['table_id']
+	sql_string=('DROP TABLE "%s" ;' %table_id)
+	
+	print(sql_string)
+	url = "https://data.cramping38.hasura-app.io/v1/query"
+	requestPayload = {
+    "type" : "run_sql",
+    "args" : {
+        "sql" :	sql_string
+    	}
+	}
+	headers = {
+	    "Content-Type": "application/json",
+	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	}
+	
+	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp = resp.json()
+	print(resp)
+	requestPayload = {
+    "type": "delete",
+    "args": {
+        "table": "Table_details",
+        "where": {
+            "table_id": {
+                "$eq": table_id
+            	}
+        	}
+    	}
+	}
+	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp = resp.json()
 	print(resp)
 	return(json.dumps(resp))
