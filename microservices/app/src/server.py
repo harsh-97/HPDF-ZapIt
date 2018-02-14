@@ -127,11 +127,11 @@ def create_table():
 
 	#adding data in table_details
 	#updating the table details
-	insertData={
+	Data={
 	"name":"Table_details",
 	"columns": {"user_id":user_id,"table_name":table_name , "date_created":datetime.datetime.today().strftime("%Y-%m-%d"), "date_last_modified":datetime.datetime.today().strftime("%Y-%m-%d")}
 	}
-	insert_data(insertData)
+	insert_data(Data)
 	#fetching table_id
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 	requestPayload = {
@@ -160,7 +160,7 @@ def create_table():
 	}
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
-	print("hhhh",resp)
+	print(resp)
 	table_id=resp[0]['table_id']
 
 	#creating a sql string
@@ -203,9 +203,49 @@ def create_table():
 
 #insert-table
 @app.route('/insert-table',methods=['POST'])
-def insert_data(data=None):
-	if(data==None):
-		data=request.json();
+def insert_data():
+	data = request.json;
+	table_id=data['table_id']
+	col=data['columns']
+
+	#creating sql string
+	sql_string=('INSERT INTO "%s" (' %(table_id))
+	colname=""
+	colvalue=""
+	for key in col.keys():
+		colname=colname+key+", "
+
+		if(not col[key].isnumeric()):
+			colvalue=colvalue+"'"+col[key]+"'"+", "
+		else:
+			colvalue=colvalue+col[key]+", "
+
+	colname=colname[:-2]
+	colvalue=colvalue[:-2]
+	sql_string=sql_string+colname+")"+" values ("+colvalue+");"
+
+	print(sql_string)
+	url = "https://data.cramping38.hasura-app.io/v1/query"
+	requestPayload = {
+    "type" : "run_sql",
+    "args" : {
+        "sql" :	sql_string,
+
+    	},
+	}
+	headers = {
+	    "Content-Type": "application/json",
+	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	}
+	
+	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp = resp.json()
+	print(resp)
+	return(json.dumps(resp))
+
+#insert-table
+
+def insert_data(data):
 	name=data['name']
 	col=data['columns']
 
@@ -241,5 +281,42 @@ def insert_data(data=None):
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
+	print(resp)
+	return(json.dumps(resp))
+
+
+#update table
+@app.route('/update-table',methods=['POST'])
+def update_table():
+	data=request.json;
+	table_id=data['table_id']
+	col=data['columns']
+	sno=data['sno']
+	url = "https://data.cramping38.hasura-app.io/v1/query"
+
+	table_id=str(table_id)
+	sql_dict={}
+	for key in col.keys():
+		sql_dict[key]=col[key]
+
+
+	requestPayload = {
+	    "type": "update",
+	    "args": {
+	        "table": table_id,
+	        "where": {
+	            "sno": sno
+	        },
+	        "$set": sql_dict
+	    }
+	}
+	print(requestPayload)
+	# Setting headers
+	headers = {
+	    "Content-Type": "application/json",
+	    "Authorization": "Bearer 267fe32ded6e6afd264014c18ea1727bc8afcf7ec02cd7a4"
+	}
+	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp=resp.json()
 	print(resp)
 	return(json.dumps(resp))
