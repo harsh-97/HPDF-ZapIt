@@ -7,7 +7,7 @@ import datetime
 import os
 
 
-print os.environ.get('zap.key')
+print (os.environ.get('zap.key'))
 
 @app.route("/")
 def home():
