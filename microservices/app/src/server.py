@@ -12,7 +12,7 @@ import os
 @app.route("/")
 def home():
 	print (os.environ.get('zap.key'))
-    return "Hasura Hello World"
+	return "Hasura Hello World"
 
 
 # Uncomment to add a new URL at /new
