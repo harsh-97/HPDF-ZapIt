@@ -172,6 +172,7 @@ class Sidebar extends Component {
 		};
 		this.handleTableClick = props.handleTableClick;
 		this.doLogout = props.doLogout;
+		this.openCreateTableDialog = props.openCreateTableDialog;
 	}
 
 	fetchTableList() {
@@ -233,7 +234,10 @@ class Sidebar extends Component {
 						</div>
 					}
 				</div>
-				<FlatButton label="Logout" secondary={true} onClick={this.doLogout}/>
+				<div>
+					<input type='button' value="New Table" onClick={this.openCreateTableDialog}/>
+					<input type='button' value="Logout" onClick={this.doLogout}/>
+				</div>
 			</div>
 		);
 	}
@@ -389,28 +393,108 @@ class Tablespace extends Component {
 	}
 
 	doInsert() {
-		alert("Doing Insert!");
+		var url = "https://app.cramping38.hasura-app.io/insert-table";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+			"table_id": this.state.table_id,
+			"columns": {},
+		} 
+
+		for (var i = Object.keys(this.state.newRow).length - 1; i >= 0; i--) {
+			body["columns"][Object.keys(this.state.newRow)[i]] = this.state.newRow[Object.keys(this.state.newRow)[i]];
+		};
+
+		requestOptions.body = JSON.stringify(body);
+
+		fetch(url, requestOptions)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(result) {
+		})
+		.catch(function(error) {
+			alert(JSON.stringify(error));
+			console.log('Failed: ' + error);
+		});
 		this.fetchTableData(this.state.table_id);
 	}
 
 	doUpdate(sno, colname, value) {
-		alert("Doing Update!");
-		alert(colname + " of row " + sno + " will be changed to " + value);
+		var url = "https://app.cramping38.hasura-app.io/update-table";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+			"table_id": this.state.table_id,
+			"columns": {
+				[colname]: value
+			},
+			"sno": sno,
+		};
+
+		requestOptions.body = JSON.stringify(body);
+
+		fetch(url, requestOptions)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(result) {
+		})
+		.catch(function(error) {
+			alert(JSON.stringify(error));
+			console.log('Failed: ' + error);
+		});
 		this.fetchTableData(this.state.table_id);
 	}
 
 	doDelete(sno) {
-		alert("Doing Delete!");
-		alert("Will delete row " + sno);
+		var url = "https://app.cramping38.hasura-app.io/delete-row";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+			"table_id": this.state.table_id,
+			"sno": sno,
+		};
+
+		requestOptions.body = JSON.stringify(body);
+
+		alert(requestOptions.body);
+
+		fetch(url, requestOptions)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(result) {
+		})
+		.catch(function(error) {
+			alert(JSON.stringify(error));
+			console.log('Failed: ' + error);
+		});
 		this.fetchTableData(this.state.table_id);
 	}
 
 	handleInsertClick(event) {
 		if(Object.keys(this.state.newRow).length !== 0)
 		{
-			alert(JSON.stringify(this.state.newRow));
 			this.doInsert();
-			this.setState({newRow: {}})
 		}
 		else
 			alert("Nothing to insert!");
@@ -488,6 +572,34 @@ class Tablespace extends Component {
 }
 
 
+function CreateTableDialog(props) {
+	var i = 1;
+	const columns = Object.entries(props.newTable.slice(1)).map((value) =>
+		<div>
+			<span>Column Name: </span>
+			<input type='text' name={i} value={props.newTable[i].split('_').join(' ')} onChange={props.handleNewTableChange}/>
+			<input type='button' name={i++} value="Delete" onClick={props.handleRemoveRowRequest}/>
+		</div>
+	);
+
+	return(
+		<div className="tablespace">
+			<div>
+				<span>Table Name: </span>
+				<input type='text' name={0} value={props.newTable[0]} onChange={props.handleNewTableChange}/>
+			</div>
+			{columns}
+			<input type='button' value='New Row' onClick={props.handleNewRowRequest}/>
+			{
+				props.newTable.length !== 1 ?
+				<input type='button' value='Create table' onClick={props.handleCreateTableRequest}/>
+				:
+				<span></span>
+			}
+		</div>
+	);
+}
+
 class Dashboard extends Component {
 	constructor(props)
 	{
@@ -497,9 +609,102 @@ class Dashboard extends Component {
 			username: window.localStorage.getItem('USERNAME'),
 			hasura_id: window.localStorage.getItem('HASURA_ID'),
 			table_id: null,
+			newTable: {data: ['', ], dialog: false},
 		};
+		this.openCreateTableDialog = this.openCreateTableDialog.bind(this);
+		this.handleNewTableChange = this.handleNewTableChange.bind(this);
+		this.handleNewRowRequest = this.handleNewRowRequest.bind(this);
+		this.handleRemoveRowRequest = this.handleRemoveRowRequest.bind(this);
+		this.handleCreateTableRequest = this.handleCreateTableRequest.bind(this);
 		this.doLogout = this.doLogout.bind(this);
 		this.handleTableClick = this.handleTableClick.bind(this);
+	}
+
+	doCreateTable(){
+		var url = "https://app.cramping38.hasura-app.io/new-table";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+			"user_id": this.state.hasura_id,
+			"table_name": this.state.newTable.data[0],
+			"columns": this.state.newTable.data.slice(1),
+		} 
+
+		var that = this;
+
+		requestOptions.body = JSON.stringify(body);
+
+		fetch(url, requestOptions)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(result) {
+		})
+		.catch(function(error) {
+			alert(error);
+			console.log('Failed: ' + error);
+		});
+	}
+
+	openCreateTableDialog(event) {
+		event.preventDefault();
+
+		var tempTable = this.state.newTable;
+		tempTable.dialog = true;
+		this.setState({newTableDialog : tempTable, table_id: null});
+	}
+
+	handleNewTableChange(event) {
+		event.preventDefault();
+		var target = event.target;
+		var value = target.value;
+		var index = target.name;
+
+		var tempTable = this.state.newTable;
+		if(index !== 1)
+		{
+			value = value.split(" ").join('_');
+		}
+		tempTable.data[index] = value;
+
+		this.setState({newTable: tempTable});
+	}
+
+	handleNewRowRequest(event) {
+		event.preventDefault();
+
+		var tempTable = this.state.newTable;
+		tempTable.data[tempTable.data.length] = '';
+		this.setState({newTable: tempTable});
+	}
+
+	handleRemoveRowRequest(event) {
+		event.preventDefault();
+		var target = event.target;
+		var index = target.name;
+
+		var tempTable = this.state.newTable;
+		tempTable.data.splice(index, 1);
+		this.setState({newTable: tempTable});
+	}
+
+	handleCreateTableRequest(event) {
+		event.preventDefault();
+
+		this.doCreateTable();
+		
+		this.setState({
+			newTable: {
+				data: ['', ],
+				dialog: false,
+			}
+		});
 	}
 
 	doLogout(event) {
@@ -547,12 +752,27 @@ class Dashboard extends Component {
 					<Redirect to="/login"/>
 					:
 					<div className="dashboard">
-						<Sidebar username={this.state.username} hasura_id={this.state.hasura_id} handleTableClick={this.handleTableClick} doLogout={this.doLogout}/>
+						<Sidebar 
+							username={this.state.username} 
+							hasura_id={this.state.hasura_id} 
+							handleTableClick={this.handleTableClick} 
+							doLogout={this.doLogout}
+							openCreateTableDialog={this.openCreateTableDialog}
+						/>
 						{
 							this.state.table_id == null ?
-							<div className="tablespace">
-								<span>Select a table</span>
-							</div>
+								this.state.newTable.dialog ?
+								<CreateTableDialog 
+									newTable={this.state.newTable.data} 
+									handleNewTableChange={this.handleNewTableChange}
+									handleNewRowRequest={this.handleNewRowRequest}
+									handleRemoveRowRequest={this.handleRemoveRowRequest}
+									handleCreateTableRequest={this.handleCreateTableRequest}
+								/>
+								:
+								<div className="tablespace">
+									<span>Select a table</span>
+								</div>
 							:
 							<Tablespace table_id={this.state.table_id}/>		
 						}
