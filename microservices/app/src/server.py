@@ -11,8 +11,8 @@ import os
 
 @app.route("/")
 def home():
-	print (os.environ.get('zap.key'))
-	return "Hasura Hello World"
+	return (os.environ.get('zap.key'))
+	# return "Hasura Hello World"
 
 
 # Uncomment to add a new URL at /new
@@ -30,7 +30,7 @@ def userTables():
 	requestPayload = {
 	    "type": "select",
 	    "args": {
-	        "table": "User_tables",
+	        "table": "Table_details",
 	        "columns": [
 	            "table_id"
 	        ],
