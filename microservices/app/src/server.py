@@ -8,14 +8,10 @@ import os
 
 
 
-
 @app.route("/")
 def home():
-	return (os.environ.get('zap.key'))
-	# return "Hasura Hello World"
+    return "Hasura Hello World"
 
-
-# Uncomment to add a new URL at /new
 @app.route("/json")
 def json_message():
     return jsonify(message="Hello World")
@@ -52,6 +48,7 @@ def userTables():
 	for i in range(len(resp)):
 		table_id=resp[i]['table_id']
 		details[table_id] =table_details(table_id)
+
 	return (json.dumps(details))
 
 
@@ -199,7 +196,20 @@ def create_table():
 	}
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
-	print(resp)
+	print(resp) 
+
+	#Zapier Zap:
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	Zaprequest = {
+	"user_id":user_id,
+	"table_id":table_id,
+	"action":"Table Created"
+	}
+
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
+	zap_resp=zap_resp.json()
+	print(zap_resp)
+
 	return(json.dumps(resp))
 
 
@@ -208,6 +218,7 @@ def create_table():
 def insert_data():
 	data = request.json;
 	table_id=data['table_id']
+	user_id=data['user_id']
 	col=data['columns']
 
 	#creating sql string
@@ -243,6 +254,19 @@ def insert_data():
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
 	print(resp)
+	#Zapier Zap:
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	Zaprequest = {
+	"user_id":user_id,
+	"table_id":table_id,
+	"action":"Data Inserted"
+	}
+
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
+	zap_resp=zap_resp.json()
+	print(zap_resp)
+
+
 	return(json.dumps(resp))
 
 #insert-table when new table is formed
@@ -294,6 +318,7 @@ def update_table():
 	table_id=data['table_id']
 	col=data['columns']
 	sno=data['sno']
+	user_id=data['user_id']
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 
 	table_id=str(table_id)
@@ -321,6 +346,18 @@ def update_table():
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp=resp.json()
 	print(resp)
+	#Zapier Zap:
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	Zaprequest = {
+	"user_id":user_id,
+	"table_id":table_id,
+	"action":"Data Updated"
+	}
+
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
+	zap_resp=zap_resp.json()
+	print(zap_resp)
+
 	return(json.dumps(resp))
 
 #deleting rows from table
@@ -328,6 +365,7 @@ def update_table():
 def delete_rows():
 	data=request.json
 	table_id=data['table_id']
+	user_id=data['user_id']
 	sno=data['sno']
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 
@@ -339,7 +377,7 @@ def delete_rows():
 	        "where": {
 	            "sno": {
 	            "$eq": sno
-	            
+
 	        	}
 	        }
 	    }
@@ -351,14 +389,28 @@ def delete_rows():
 	    "Authorization": "Bearer 267fe32ded6e6afd264014c18ea1727bc8afcf7ec02cd7a4"
 	}
 
+
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp=resp.json()
 	print(resp)
+	#Zapier Zap:
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	Zaprequest = {
+	"user_id":user_id,
+	"table_id":table_id,
+	"action":"Row deleted"
+	}
+
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
+	zap_resp=zap_resp.json()
+	print(zap_resp)
+
 	return(json.dumps(resp))
 #droping table
 @app.route('/drop-table',methods=['POST'])
 def drop_table():
 	data=request.json;
+	user_id=data['user_id']
 	table_id=data['table_id']
 	sql_string=('DROP TABLE "%s" ;' %table_id)
 	
@@ -392,4 +444,16 @@ def drop_table():
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
 	print(resp)
+	#Zapier Zap:
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	Zaprequest = {
+	"user_id":user_id,
+	"table_id":table_id,
+	"action":"table has been dropped"
+	}
+
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
+	zap_resp=zap_resp.json()
+	print(zap_resp)
+
 	return(json.dumps(resp))
