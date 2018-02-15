@@ -7,10 +7,11 @@ import datetime
 import os
 
 
-print (os.environ.get('zap.key'))
+
 
 @app.route("/")
 def home():
+	print (os.environ.get('zap.key'))
     return "Hasura Hello World"
 
 
