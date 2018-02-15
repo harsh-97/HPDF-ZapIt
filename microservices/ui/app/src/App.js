@@ -254,13 +254,13 @@ function UnpackTableData(props){
 				{
 					if(key !== 'sno')
 						if(key === props.editing.colname && row['sno'].toString() === props.editing.sno)
-							{
-								return(
-								<td key={key} colname={key} sno={row['sno']}>
-									<input autoFocus type="text" sno={row['sno']} colname={key} placeholder={value} onBlur={props.handleUpdateBlur}/>
-								</td>
-								);
-							}
+						{
+							return(
+							<td key={key} colname={key} sno={row['sno']}>
+								<input autoFocus type="text" sno={row['sno']} colname={key} placeholder={value} onBlur={props.handleUpdateBlur}/>
+							</td>
+							);
+						}
 						else
 						{
 							return(
@@ -311,17 +311,20 @@ function UnpackTableData(props){
 	delete firstRow['button'];
 
 	return (
-		<table>
-		<tbody>
-			<tr>
-				{columns}
-			</tr>
-			{tableInner}
-			<tr>
-				{newRow}
-			</tr>
-		</tbody>
-		</table>
+		<div>
+			<table>
+			<tbody>
+				<tr>
+					{columns}
+				</tr>
+				{tableInner}
+				<tr>
+					{newRow}
+				</tr>
+			</tbody>
+			</table>
+			<input type='button' value="Delete Table" onClick={props.handleTableDeleteClick}/>
+		</div>
 		);
 }
 
@@ -344,6 +347,8 @@ class Tablespace extends Component {
 		this.handleUpdateBlur = this.handleUpdateBlur.bind(this);
 		this.handleDeleteClick = this.handleDeleteClick.bind(this);
 		this.handleNewRowDataChange = this.handleNewRowDataChange.bind(this);
+		this.handleTableDeleteClick = this.handleTableDeleteClick.bind(this);
+		this.doTableDelete = props.doTableDelete;
 	}
 
 	fetchTableData(table_id) {
@@ -459,7 +464,7 @@ class Tablespace extends Component {
 		this.fetchTableData(this.state.table_id);
 	}
 
-	doDelete(sno) {
+	doRowDelete(sno) {
 		var url = "https://app.cramping38.hasura-app.io/delete-row";
 
 		var requestOptions = {
@@ -537,7 +542,13 @@ class Tablespace extends Component {
 		var sno = target.getAttribute("sno");
 
 		if(window.confirm("Are you sure!"))
-			this.doDelete(sno);
+			this.doRowDelete(sno);
+	}
+
+	handleDeleteTableClick(event) {
+		event.preventDefault();
+		if(window.confirm("Are you sure!"))
+			this.doTableDelete();
 	}
 
 	render() {
@@ -552,6 +563,7 @@ class Tablespace extends Component {
 						handleUpdateBlur={this.handleUpdateBlur}
 						handleDeleteClick={this.handleDeleteClick} 
 						handleNewRowDataChange={this.handleNewRowDataChange} 
+						handleTableDeleteClick={this.handleTableDeleteClick}
 						editing={this.state.editing}
 						newRow={this.state.newRow}
 					/>
@@ -610,8 +622,9 @@ class Dashboard extends Component {
 		this.handleNewRowRequest = this.handleNewRowRequest.bind(this);
 		this.handleRemoveRowRequest = this.handleRemoveRowRequest.bind(this);
 		this.handleCreateTableRequest = this.handleCreateTableRequest.bind(this);
-		this.doLogout = this.doLogout.bind(this);
 		this.handleTableClick = this.handleTableClick.bind(this);
+		this.doTableDelete = this.doTableDelete.bind(this);
+		this.doLogout = this.doLogout.bind(this);
 	}
 
 	doCreateTable(){
@@ -703,6 +716,10 @@ class Dashboard extends Component {
 		});
 	}
 
+	doTableDelete(){
+		alert("Dropping table!");
+	}
+
 	doLogout(event) {
 		event.preventDefault();
 		var url = "https://auth.cramping38.hasura-app.io/v1/user/logout";
@@ -770,7 +787,10 @@ class Dashboard extends Component {
 									<span>Select a table</span>
 								</div>
 							:
-							<Tablespace table_id={this.state.table_id}/>		
+							<Tablespace 
+								table_id={this.state.table_id}
+								doTableDelete={this.doTableDelete}
+							/>		
 						}
 					</div>
 				}
