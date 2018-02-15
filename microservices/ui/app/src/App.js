@@ -246,7 +246,7 @@ class Sidebar extends Component {
 
 function UnpackTableData(props){
 	const data = props.data;
-
+// TODO: FOR TABLES WITH NO ENTRIES, SHOW COLUMN NAMES SOMEHOW
 	const tableInner = data.map((row) =>
 		<tr key={row['sno']}>
 			{
@@ -545,22 +545,16 @@ class Tablespace extends Component {
 			<div className="tablespace">
 		    	{
 					this.state.fetched ?
-						Object.keys(this.state.tableData).length === 0 ?
-						<div>
-							<span>No data in table!</span><br/>
-							<span>Insert new data</span>
-						</div>
-						:
-						<UnpackTableData 
-							data={this.state.tableData} 
-							handleInsertClick={this.handleInsertClick} 
-							handleUpdateClick={this.handleUpdateClick} 
-							handleUpdateBlur={this.handleUpdateBlur}
-							handleDeleteClick={this.handleDeleteClick} 
-							handleNewRowDataChange={this.handleNewRowDataChange} 
-							editing={this.state.editing}
-							newRow={this.state.newRow}
-						/>
+					<UnpackTableData 
+						data={this.state.tableData} 
+						handleInsertClick={this.handleInsertClick} 
+						handleUpdateClick={this.handleUpdateClick} 
+						handleUpdateBlur={this.handleUpdateBlur}
+						handleDeleteClick={this.handleDeleteClick} 
+						handleNewRowDataChange={this.handleNewRowDataChange} 
+						editing={this.state.editing}
+						newRow={this.state.newRow}
+					/>
 					:
 					<div>
 						<span>{this.state.message}</span>
@@ -640,6 +634,8 @@ class Dashboard extends Component {
 
 		requestOptions.body = JSON.stringify(body);
 
+		alert(requestOptions.body);
+
 		fetch(url, requestOptions)
 		.then(function(response) {
 			return response.json();
@@ -667,7 +663,7 @@ class Dashboard extends Component {
 		var index = target.name;
 
 		var tempTable = this.state.newTable;
-		if(index !== 1)
+		if(index !== '0')
 		{
 			value = value.split(" ").join('_');
 		}
