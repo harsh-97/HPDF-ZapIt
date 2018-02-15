@@ -8,6 +8,10 @@ import os
 
 
 
+app=Flask(__name__)
+app.debug=True
+
+
 @app.route("/")
 def home():
     return "Hasura Hello World"
@@ -199,15 +203,18 @@ def create_table():
 	print(resp) 
 
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
 	"action":"Table Created"
 	}
-
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
-	zap_resp=zap_resp.json()
+	print(json.dumps(Zaprequest))
+	newHeaders = {
+	    "Content-Type": "application/json"
+	}
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
+	zap_resp=json.dumps(zap_resp.json())
 	print(zap_resp)
 
 	return(json.dumps(resp))
@@ -255,14 +262,17 @@ def insert_data():
 	resp = resp.json()
 	print(resp)
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
 	"action":"Data Inserted"
 	}
 
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
+	newHeaders = {
+	    "Content-Type": "application/json"
+	}
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
 	print(zap_resp)
 
@@ -347,14 +357,17 @@ def update_table():
 	resp=resp.json()
 	print(resp)
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
 	"action":"Data Updated"
 	}
 
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
+	newHeaders = {
+	    "Content-Type": "application/json"
+	}
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
 	print(zap_resp)
 
@@ -394,14 +407,17 @@ def delete_rows():
 	resp=resp.json()
 	print(resp)
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
 	"action":"Row deleted"
 	}
 
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
+	newHeaders = {
+	    "Content-Type": "application/json"
+	}
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
 	print(zap_resp)
 
@@ -445,15 +461,20 @@ def drop_table():
 	resp = resp.json()
 	print(resp)
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
+	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
 	"action":"table has been dropped"
 	}
 
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=headers)
+	newHeaders = {
+	    "Content-Type": "application/json"
+	}
+	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
 	print(zap_resp)
 
 	return(json.dumps(resp))
+
+
