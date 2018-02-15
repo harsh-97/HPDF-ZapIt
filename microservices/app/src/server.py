@@ -4,12 +4,15 @@ import requests
 import json
 from flask import request
 import datetime
+import os
 
 
+print os.environ.get('zap.key')
 
 @app.route("/")
 def home():
     return "Hasura Hello World"
+
 
 # Uncomment to add a new URL at /new
 @app.route("/json")
