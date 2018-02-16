@@ -26,10 +26,10 @@ items:
           - name: CLUSTER_NAME 
             value: {{ cluster.name }}
           - name: ZAPURL
-          valueFrom:
-            secretKeyRef:
-              name: hasura-secrets
-              key: zap.key
+            valueFrom:
+              secretKeyRef:
+                name: hasura-secrets
+                key: zap.key
           imagePullPolicy: IfNotPresent
           name: app
           ports:
