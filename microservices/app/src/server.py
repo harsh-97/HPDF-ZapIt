@@ -7,17 +7,17 @@ import datetime
 import os
 
 zapurl = os.environ['ZAPURL']
+authtoken = os.environ['AUTH_TOKEN']
 
 @app.route("/")
 def home():
-	print("ALL", os.environ)
-	print("SPECIFIC", os.environ['ZAPURL'])
-	print("GLOBAL", zapurl)
-	return zapurl
+	return "Hasura Hello World"
+
 
 @app.route("/json")
 def json_message():
     return jsonify(message="Hello World")
+
 
 #Printing the table details
 @app.route('/user-tables',methods=['POST'])
@@ -42,7 +42,7 @@ def userTables():
 	}
 	headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+    "Authorization": "Bearer " + authtoken
 	}
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	
@@ -56,9 +56,7 @@ def userTables():
 
 
 
-
 def table_details(table_id):
-
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 	requestPayload = {
 	    "type": "select",
@@ -79,7 +77,7 @@ def table_details(table_id):
 	
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	    "Authorization": "Bearer " + authtoken
 	}
 
 	
@@ -88,6 +86,7 @@ def table_details(table_id):
 	resp = resp.json()
 	print(resp)
 	return(resp[0])
+
 
 #get user defined table details 
 @app.route('/fetch-data',methods=['POST'])
@@ -110,7 +109,7 @@ def fetch_table_data():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	    "Authorization": "Bearer " + authtoken
 	}
 	sql_string=("SELECT column_name from information_schema.columns where table_name='%s' ;" %table_id)
 	requestPayload2 = {
@@ -130,8 +129,9 @@ def fetch_table_data():
 	print(resp2["result"])
 	respDict={"data":resp1,"columns":resp2["result"]}
 	return(json.dumps(respDict))
-#to create a new table
 
+
+#to create a new table
 @app.route('/new-table',methods=['POST'])
 def create_table():
 	data=request.json;
@@ -142,8 +142,12 @@ def create_table():
 	#adding data in table_details
 	#updating the table details
 	Data={
-	"name":"Table_details",
-	"columns": {"user_id":user_id,"table_name":table_name , "date_created":datetime.datetime.today().strftime("%Y-%m-%d"), "date_last_modified":datetime.datetime.today().strftime("%Y-%m-%d")}
+		"name":"Table_details",
+		"columns": {
+			"user_id":user_id,"table_name":table_name , 
+			"date_created":datetime.datetime.today().strftime("%Y-%m-%d"), 
+			"date_last_modified":datetime.datetime.today().strftime("%Y-%m-%d")
+		}
 	}
 	insert_data_table_details(Data)
 	#fetching table_id
@@ -170,7 +174,7 @@ def create_table():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	    "Authorization": "Bearer " + authtoken
 	}
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
@@ -194,7 +198,7 @@ def create_table():
 	}
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	    "Authorization": "Bearer " + authtoken
 	}
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -214,17 +218,16 @@ def create_table():
 	print(resp) 
 
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
-	"action":"Table Created"
+	"action":"Create Table"
 	}
 	print(json.dumps(Zaprequest))
 	newHeaders = {
 	    "Content-Type": "application/json"
 	}
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
+	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=json.dumps(zap_resp.json())
 	print(zap_resp)
 
@@ -266,32 +269,32 @@ def insert_data():
 	}
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	    "Authorization": "Bearer " + authtoken
 	}
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
 	print(resp)
+
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
-	"action":"Data Inserted"
+	"action":"Insert Row"
 	}
 
 	newHeaders = {
 	    "Content-Type": "application/json"
 	}
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
+	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
 	print(zap_resp)
 
 
 	return(json.dumps(resp))
 
-#insert-table when new table is formed
 
+#insert-table when new table is formed
 def insert_data_table_details(data):
 	name=data['name']
 	col=data['columns']
@@ -323,7 +326,7 @@ def insert_data_table_details(data):
 	}
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	    "Authorization": "Bearer " + authtoken
 	}
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -362,27 +365,28 @@ def update_table():
 	# Setting headers
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer 267fe32ded6e6afd264014c18ea1727bc8afcf7ec02cd7a4"
+	    "Authorization": "Bearer " + authtoken
 	}
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp=resp.json()
 	print(resp)
+
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
-	"action":"Data Updated"
+	"action":"Update Row"
 	}
 
 	newHeaders = {
 	    "Content-Type": "application/json"
 	}
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
+	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
 	print(zap_resp)
 
 	return(json.dumps(resp))
+
 
 #deleting rows from table
 @app.route('/delete-row',methods=['POST'])
@@ -410,30 +414,32 @@ def delete_rows():
 	# Setting headers
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer 267fe32ded6e6afd264014c18ea1727bc8afcf7ec02cd7a4"
+	    "Authorization": "Bearer " + authtoken
 	}
 
 
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp=resp.json()
 	print(resp)
+
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
-	"action":"Row deleted"
+	"action":"Delete Row"
 	}
 
 	newHeaders = {
 	    "Content-Type": "application/json"
 	}
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
+	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
 	print(zap_resp)
 
 	return(json.dumps(resp))
-#droping table
+
+
+#dropping table
 @app.route('/drop-table',methods=['POST'])
 def drop_table():
 	data=request.json;
@@ -471,20 +477,19 @@ def drop_table():
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
 	print(resp)
+
 	#Zapier Zap:
-	newUrl="https://hooks.zapier.com/hooks/catch/2965837/zksrvh/"
 	Zaprequest = {
 	"user_id":user_id,
 	"table_id":table_id,
-	"action":"table has been dropped"
+	"action":"Drop Table"
 	}
 
 	newHeaders = {
 	    "Content-Type": "application/json"
 	}
-	zap_resp = requests.request("POST", newUrl, data=json.dumps(Zaprequest), headers=newHeaders)
+	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
 	print(zap_resp)
 
 	return(json.dumps(resp))
-

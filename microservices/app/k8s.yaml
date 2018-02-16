@@ -30,6 +30,11 @@ items:
               secretKeyRef:
                 name: hasura-secrets
                 key: zap.key
+          - name: AUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hasura-secrets
+                key: auth.token
           imagePullPolicy: IfNotPresent
           name: app
           ports:
