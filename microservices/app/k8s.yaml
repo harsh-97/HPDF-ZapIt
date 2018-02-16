@@ -29,7 +29,7 @@ items:
           valueFrom:
             secretKeyRef:
               name: hasura-secrets
-              key: 'zap.key'
+              key: zap.key
           imagePullPolicy: IfNotPresent
           name: app
           ports:
