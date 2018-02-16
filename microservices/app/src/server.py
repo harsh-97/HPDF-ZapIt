@@ -6,7 +6,7 @@ from flask import request
 import datetime
 import os
 
-zapurl = str(os.environ['ZAPURL'])
+zapurl = os.environ['ZAPURL']
 authtoken = os.environ['AUTH_TOKEN']
 
 @app.route("/")
