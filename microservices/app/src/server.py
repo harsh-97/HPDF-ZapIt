@@ -10,7 +10,7 @@ zapurl = print(os.environ['ZAPURL'])
 
 @app.route("/")
 def home():
-    return zapurl
+	return zapurl
 
 @app.route("/json")
 def json_message():
