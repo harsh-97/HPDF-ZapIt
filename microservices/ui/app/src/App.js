@@ -3,8 +3,9 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Mui from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
-import {orange200, white} from 'material-ui/styles/colors';
-// import FlatButton from 'material-ui/FlatButton';
+import {yellow200, white} from 'material-ui/styles/colors';
+import Paper from 'material-ui/Paper';
+import RaisedButton from 'material-ui/RaisedButton';
 
 
 import IconButton from 'material-ui/IconButton';
@@ -14,24 +15,9 @@ import PinWheelIcon from 'material-ui/svg-icons/hardware/toys';
 import './App.css';
 
 
-/*
-TODO
---------------
-- Sign Up
-- Clean up code
-- Back end secrets
-- Zap fix
-- Design
-- Commit
-- Publish
-
-*/
-
-
-
 const muiTheme = getMuiTheme({
 		palette: {
-			primary1Color: orange200,
+			primary1Color: yellow200,
 			alternate1Color: white,
 		},
 	    fontFamily: 'Arial, sans-serif',
@@ -40,42 +26,72 @@ const muiTheme = getMuiTheme({
 
 function SignupDialog(props) {
 	return(
-		<div>
-			Sign up window
-			<input type='button' value="Sign up" onClick={props.doSignup}/>
-		</div>
+		<Paper zDepth={0} className='loginBox' zDepth={2} style={{background: muiTheme.palette.primary1Color}}>
+			<h4>Signup</h4>
+			<table>
+			<tbody>
+				<tr>
+					<td>
+						Username:
+					</td>
+					<td>
+						<input name="username" type="text"	value={props.username} onChange={props.handleChange}/>	
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Password:
+					</td>
+					<td>		
+						<input name="password" type="password" value={props.password} onChange={props.handleChange}/>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			<br/>
+			{props.message} <br/>
+			<input type='button' value="Sign up" onClick={props.doSignup}
+			/>
+		</Paper>
 	);
 }
 
+
 function LoginDialog(props) {
 	return(
-		<div>
+		<Paper zDepth={0} className='loginBox' zDepth={2} style={{background: muiTheme.palette.primary1Color}}>
 			<h4>Login</h4>
 			<form onSubmit={props.handleSubmit}>
-				<input 
-					name="username" 
-					type="text" 
-					value={props.username} 
-					onChange={props.handleChange}
-				/>			
-				<input 
-					name="password" 
-					type="password" 
-					value={props.password} 
-					onChange={props.handleChange}
-				/>
-				<input 
-					name="submit" 
-					type="submit" 
-					value="Login"
-				/>
+			<table>
+			<tbody>
+				<tr>
+					<td>
+						Username:
+					</td>
+					<td>
+						<input name="username" type="text" value={props.username} onChange={props.handleChange}/>	
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Password:
+					</td>
+					<td>		
+						<input name="password" type="password" value={props.password} onChange={props.handleChange}/>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+			<br/>
+			<input name="submit" type="submit" value="Login"/>
 			</form>
 			<br/>
 			{props.message} <br/>
 			New user? Click here to <span onClick={props.handleSignUpClick}><u>Sign Up</u></span>
-		</div>
+		</Paper>
 	);
 }
+
 
 class Login extends Component {
 	constructor(props)
@@ -165,21 +181,82 @@ class Login extends Component {
 	}
 
 	handleSignUpClick(event) {
-		alert("doing sign up!");
 		this.setState({signUp: true});
 	}
 
 	doSignup(event){
-		alert("done with sign up");
-		this.setState({signUp: false})
+		var url = "https://auth.cramping38.hasura-app.io/v1/signup";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+		    "provider": "username",
+		    "data": {
+		        "username": this.state.username,
+		        "password": this.state.password,
+		    }
+		};
+
+		requestOptions.body = JSON.stringify(body);
+
+	  	fetch(url, requestOptions
+  		).then(response => {
+	  		this.setState({username: '', password: ''});
+	  		return response.json();
+	  	}).then(result => {
+	  		if(result.auth_token)
+	  		{
+	  			window.localStorage.setItem('HASURA_AUTH_TOKEN', result.auth_token);
+	  			window.localStorage.setItem('HASURA_ID', result.hasura_id);
+	  			window.localStorage.setItem('USERNAME', result.username);
+	  			this.setState({'loggedIn': true, signUp: false});
+	  		}
+	  		else
+	  		{
+	  			if(result['code']==='invalid-password')
+	  			{
+	  				this.setState({message: result['message']});
+	  			}
+	  			else if(result['code']==='invalid-username')
+	  			{
+	  				this.setState({message: "Invalid username. Check your username and try again"});
+	  			}
+	  			else if(result['code']==='user-exists')
+	  			{
+	  				this.setState({message: "That username is taken, please try another one"});
+	  			}
+	  			else
+	  			{
+	  				this.setState({message: "Whoops! Something went wrong."});
+	  				console.log("Error:\nMessage: " + result['message'] + "\nError Code: " + result['code']);
+	  			}
+	  			this.setState({'loggedIn': false});
+	  		}
+	  	})
+	  	.catch(error => {
+	  		this.setState({username: '', password: '', message: "Whoops! Something went wrong. Check network connectivity"});
+	  		console.log("Error: " + error);
+	  	});
 	}
 
 	render() {
 		return(
 			<Mui muiTheme={muiTheme}>
+				<div className='login'>
 				{
 					this.state.signUp?
-						<SignupDialog doSignup={this.doSignup}/>
+						<SignupDialog 
+							doSignup={this.doSignup}
+							handleChange={this.handleChange}
+							username={this.state.username}
+							password={this.state.password}
+							message={this.state.message}
+						/>
 					:
 						this.state.loggedIn?
 						<Redirect to="/"/>
@@ -193,6 +270,7 @@ class Login extends Component {
 							message={this.state.message}
 						/>
 				}
+				</div>
 			</Mui>
 		);
 	}
@@ -202,7 +280,13 @@ class Login extends Component {
 function UnpackTableList(props){
 	const data = props.data;
 	const listTables = Object.entries(data).map(([key, table]) =>
-			<div key={key} tableid={key} datecreated={table['date_created']} datemodified={table['date_last_modified']} onClick={props.handleClick}>
+			<div 
+				key={key} 
+				tableid={key} 
+				datecreated={table['date_created']} 
+				datemodified={table['date_last_modified']} 
+				onClick={props.handleClick}
+			>
 					{table['table_name']}<hr/>
 			</div>
 		);
@@ -281,7 +365,10 @@ class Sidebar extends Component {
 								<span>Create a new table</span>
 							</div>
 							:
-							<UnpackTableList data={this.state.tableData} handleClick={this.handleTableClick}/>
+							<UnpackTableList 
+								data={this.state.tableData} 
+								handleClick={this.handleTableClick}
+							/>
 						:
 						<div>
 							<span>{this.state.message}</span>
@@ -289,8 +376,8 @@ class Sidebar extends Component {
 					}
 				</div>
 				<div>
-					<input type='button' value="New Table" onClick={this.openCreateTableDialog}/>
-					<input type='button' value="Logout" onClick={this.doLogout}/>
+					<RaisedButton label="New Table" className="sidebarButton" onClick={this.openCreateTableDialog}/><br/>
+					<RaisedButton label="Logout" className="sidebarButton" onClick={this.doLogout}/>
 				</div>
 			</div>
 		);
@@ -301,7 +388,7 @@ class Sidebar extends Component {
 function UnpackTableData(props){
 	var columns_data = [];
 
-	for (var i = props.data.columns.length - 1; i >= 0; i--) {
+	for (var i = 0; i <= props.data.columns.length - 1; i++) {
 		if(props.data.columns[i][0] !== 'column_name')
 		{
 			columns_data.push(props.data.columns[i][0]);
@@ -495,7 +582,6 @@ class Tablespace extends Component {
 		.then(function(result) {
 		})
 		.catch(function(error) {
-			alert(JSON.stringify(error));
 			console.log('Failed: ' + error);
 		});
 		this.fetchTableData(this.state.table_id);
@@ -529,7 +615,6 @@ class Tablespace extends Component {
 		.then(function(result) {
 		})
 		.catch(function(error) {
-			alert(JSON.stringify(error));
 			console.log('Failed: ' + error);
 		});
 		this.fetchTableData(this.state.table_id);
@@ -560,7 +645,6 @@ class Tablespace extends Component {
 		.then(function(result) {
 		})
 		.catch(function(error) {
-			alert(JSON.stringify(error));
 			console.log('Failed: ' + error);
 		});
 		this.fetchTableData(this.state.table_id);
@@ -729,8 +813,6 @@ class Dashboard extends Component {
 
 		requestOptions.body = JSON.stringify(body);
 
-		alert(requestOptions.body);
-
 		fetch(url, requestOptions)
 		.then(function(response) {
 			return response.json();
@@ -738,7 +820,6 @@ class Dashboard extends Component {
 		.then(function(result) {
 		})
 		.catch(function(error) {
-			alert(error);
 			console.log('Failed: ' + error);
 		});
 	}
@@ -753,6 +834,7 @@ class Dashboard extends Component {
 
 	handleNewTableChange(event) {
 		event.preventDefault();
+
 		var target = event.target;
 		var value = target.value;
 		var index = target.name;
@@ -799,7 +881,6 @@ class Dashboard extends Component {
 	}
 
 	doTableDelete(){
-		alert("Dropping table!");
 		var url = "https://app.cramping38.hasura-app.io/drop-table";
 
 		var requestOptions = {
@@ -818,8 +899,6 @@ class Dashboard extends Component {
 
 		requestOptions.body = JSON.stringify(body);
 
-		alert(requestOptions.body);
-
 		fetch(url, requestOptions)
 		.then(function(response) {
 			return response.json();
@@ -828,7 +907,6 @@ class Dashboard extends Component {
 			that.setState({table_id: null});
 		})
 		.catch(function(error) {
-			alert(error);
 			console.log('Failed: ' + error);
 		});
 	}

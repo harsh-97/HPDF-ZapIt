@@ -1,3 +1,14 @@
+.loginBox {
+	padding: 2%;
+	margin: 5%;
+}
+
+.login {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .dashboard {
   display: flex;
   direction: row;
@@ -9,11 +20,15 @@
   height: 100%;
   z-index: 9999;
   position: fixed;
-  /*display: flex;
+  display: flex;
   flex-direction: column;
-  justify-content: space-between;*/
+  justify-content: space-between;
 }
 
 .tablespace {
   margin-left: 15%;
+}
+
+.sidebarButton {
+	width: 100%;
 }
