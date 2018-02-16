@@ -17,7 +17,13 @@ items:
         creationTimestamp: null
         labels:
           app: app
-      spec:
+      spec:          
+        env:
+          - name: zap_url
+            valueFrom:
+              secretKeyRef:
+                name: hasura-secrets
+                key: zap.key
         containers:
         - image: hasura/hello-world:latest
           env:
