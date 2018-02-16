@@ -7,7 +7,6 @@ import datetime
 import os
 
 
-
 @app.route("/")
 def home():
     return "Hasura Hello World"
@@ -109,23 +108,24 @@ def fetch_table_data():
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
 	}
+	sql_string=("SELECT column_name from information_schema.columns where table_name='%s' ;" %table_id)
 	requestPayload2 = {
-    "type": "select",
-    "args": {
-        "table": "Table_details",
-        "columns": [
-            "*"
-        ],
-        "where": "False"
-    	}
+    "type" : "run_sql",
+    "args" : {
+        "sql" :	sql_string,
+
+    	},
 	}
 	
-	requestSent={"data":requestPayload,"columns":requestPayload2}
-	resp = requests.request("POST", url, data=json.dumps(requestSent), headers=headers)
-	resp = resp.json()
-	print(resp)
-
-	return(json.dumps(resp))
+	
+	resp1 = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
+	resp1 = resp1.json()
+	print(resp1)
+	resp2 = requests.request("POST", url, data=json.dumps(requestPayload2), headers=headers)
+	resp2=resp2.json()
+	print(resp2["result"])
+	respDict={"data":resp1,"columns":resp2["result"]}
+	return(json.dumps(respDict))
 #to create a new table
 
 @app.route('/new-table',methods=['POST'])
@@ -483,5 +483,4 @@ def drop_table():
 	print(zap_resp)
 
 	return(json.dumps(resp))
-
 
