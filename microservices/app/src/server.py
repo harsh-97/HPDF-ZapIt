@@ -228,7 +228,7 @@ def create_table():
 	    "Content-Type": "application/json"
 	}
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
-	zap_resp=json.dumps(zap_resp.json())
+	zap_resp=zap_resp.json()
 	print(zap_resp)
 
 	return(json.dumps(resp))
