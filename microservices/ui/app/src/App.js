@@ -4,7 +4,7 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import Mui from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
 import {orange200, white} from 'material-ui/styles/colors';
-import FlatButton from 'material-ui/FlatButton';
+// import FlatButton from 'material-ui/FlatButton';
 
 
 import IconButton from 'material-ui/IconButton';
@@ -12,6 +12,21 @@ import IconButton from 'material-ui/IconButton';
 import PinWheelIcon from 'material-ui/svg-icons/hardware/toys';
 
 import './App.css';
+
+
+/*
+TODO
+--------------
+- Sign Up
+- Clean up code
+- Back end secrets
+- Zap fix
+- Design
+- Commit
+- Publish
+
+*/
+
 
 
 const muiTheme = getMuiTheme({
@@ -23,6 +38,45 @@ const muiTheme = getMuiTheme({
 });
 
 
+function SignupDialog(props) {
+	return(
+		<div>
+			Sign up window
+			<input type='button' value="Sign up" onClick={props.doSignup}/>
+		</div>
+	);
+}
+
+function LoginDialog(props) {
+	return(
+		<div>
+			<h4>Login</h4>
+			<form onSubmit={props.handleSubmit}>
+				<input 
+					name="username" 
+					type="text" 
+					value={props.username} 
+					onChange={props.handleChange}
+				/>			
+				<input 
+					name="password" 
+					type="password" 
+					value={props.password} 
+					onChange={props.handleChange}
+				/>
+				<input 
+					name="submit" 
+					type="submit" 
+					value="Login"
+				/>
+			</form>
+			<br/>
+			{props.message} <br/>
+			New user? Click here to <span onClick={props.handleSignUpClick}><u>Sign Up</u></span>
+		</div>
+	);
+}
+
 class Login extends Component {
 	constructor(props)
 	{
@@ -31,11 +85,14 @@ class Login extends Component {
 			username: '',
 			password: '',
 			message: '',
-			loggedIn: 0,
+			loggedIn: false,
+			signUp: false,
 		};
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleSignUpClick = this.handleSignUpClick.bind(this);
+		this.doSignup = this.doSignup.bind(this);
 	}
 
 	doLogin() {
@@ -68,7 +125,7 @@ class Login extends Component {
 	  			window.localStorage.setItem('HASURA_AUTH_TOKEN', result.auth_token);
 	  			window.localStorage.setItem('HASURA_ID', result.hasura_id);
 	  			window.localStorage.setItem('USERNAME', result.username);
-	  			this.setState({'loggedIn': 1});
+	  			this.setState({'loggedIn': true});
 	  		}
 	  		else
 	  		{
@@ -85,7 +142,7 @@ class Login extends Component {
 	  				this.setState({message: "Whoops! Something went wrong."});
 	  				console.log("Error:\nMessage: " + result['message'] + "\nError Code: " + result['code']);
 	  			}
-	  			this.setState({'loggedIn': 0});
+	  			this.setState({'loggedIn': false});
 	  		}
 	  	})
 	  	.catch(error => {
@@ -107,37 +164,34 @@ class Login extends Component {
 		this.doLogin();
 	}
 
+	handleSignUpClick(event) {
+		alert("doing sign up!");
+		this.setState({signUp: true});
+	}
+
+	doSignup(event){
+		alert("done with sign up");
+		this.setState({signUp: false})
+	}
+
 	render() {
 		return(
 			<Mui muiTheme={muiTheme}>
 				{
-					this.state.loggedIn?
-					<Redirect to="/"/>
+					this.state.signUp?
+						<SignupDialog doSignup={this.doSignup}/>
 					:
-					<div>
-						<h4>Login</h4>
-						<form onSubmit={this.handleSubmit}>
-							<input 
-								name="username" 
-								type="text" 
-								value={this.state.username} 
-								onChange={this.handleChange}
-							/>			
-							<input 
-								name="password" 
-								type="password" 
-								value={this.state.password} 
-								onChange={this.handleChange}
-							/>
-							<input 
-								name="submit" 
-								type="submit" 
-								value="Login"
-							/>
-						</form>
-						<br/>
-						{this.state.message}
-					</div>
+						this.state.loggedIn?
+						<Redirect to="/"/>
+						:
+						<LoginDialog 
+							handleSubmit={this.handleSubmit} 
+							handleChange={this.handleChange}
+							handleSignUpClick={this.handleSignUpClick} 
+							username={this.state.username} 
+							password={this.state.password}
+							message={this.state.message}
+						/>
 				}
 			</Mui>
 		);
@@ -245,42 +299,54 @@ class Sidebar extends Component {
 
 
 function UnpackTableData(props){
-	const data = props.data;
-// TODO: FOR TABLES WITH NO ENTRIES, SHOW COLUMN NAMES SOMEHOW
-	const tableInner = data.map((row) =>
-		<tr key={row['sno']}>
-			{
-				Object.entries(row).map(([key, value]) =>
+	var columns_data = [];
+
+	for (var i = props.data.columns.length - 1; i >= 0; i--) {
+		if(props.data.columns[i][0] !== 'column_name')
+		{
+			columns_data.push(props.data.columns[i][0]);
+		}
+	}
+
+	var data = props.data['data'];
+	var tableInner;
+
+	if(data.length !== 0)
+	{
+		tableInner = data.map((row) =>
+			<tr key={row['sno']}>
 				{
-					if(key !== 'sno')
-						if(key === props.editing.colname && row['sno'].toString() === props.editing.sno)
-						{
-							return(
-							<td key={key} colname={key} sno={row['sno']}>
-								<input autoFocus type="text" sno={row['sno']} colname={key} placeholder={value} onBlur={props.handleUpdateBlur}/>
-							</td>
-							);
-						}
-						else
-						{
-							return(
-								<td key={key} colname={key} sno={row['sno']} onClick={props.handleUpdateClick}>
-									{value}
-								</td>
-							);
-						}
-				})
-			}
-			<td key={row['sno']}>
-				<input type="button" sno={row['sno']} value="Delete Row" onClick={props.handleDeleteClick}/>
-			</td>
-		</tr>
-	);
+					columns_data.map((key) =>
+					{
+						if(key !== 'sno')
+							if(key === props.editing.colname && row['sno'].toString() === props.editing.sno)
+							{
+								return(
+									<td key={key} colname={key} sno={row['sno']}>
+										<input autoFocus type="text" sno={row['sno']} colname={key} placeholder={row[key]} onBlur={props.handleUpdateBlur}/>
+									</td>
+								);
+							}
+							else
+							{
+								return(
+									<td key={key} colname={key} sno={row['sno']} onClick={props.handleUpdateClick}>
+										{row[key]}
+									</td>
+								);
+							}
+					})
+				}
+				<td key={row['sno']}>
+					<input type="button" sno={row['sno']} value="Delete Row" onClick={props.handleDeleteClick}/>
+				</td>
+			</tr>
+		);
+	}
 
-	var firstRow = data[0];
-	firstRow['button'] = undefined;
+	columns_data.push('button');
 
-	const columns = Object.keys(firstRow).map((column) =>
+	const columns = columns_data.map((column) =>
 	{	
 		if(column === 'button')
 			return(<th key='button'></th>);
@@ -292,11 +358,11 @@ function UnpackTableData(props){
 			)
 	});
 
-	const newRow = Object.keys(firstRow).map((column) =>
+	const newRow = columns_data.map((column) =>
 	{
 		if(column === 'button')
 			return(
-				<td key={firstRow['sno']}>
+				<td key={'insert'}>
 					<input type="button" value="Insert Row" onClick={props.handleInsertClick}/>
 				</td>
 			);
@@ -308,7 +374,7 @@ function UnpackTableData(props){
 			);
 	});
 
-	delete firstRow['button'];
+	columns_data.splice(columns_data.indexOf(['button']), 1);
 
 	return (
 		<div>
@@ -323,9 +389,9 @@ function UnpackTableData(props){
 				</tr>
 			</tbody>
 			</table>
-			<input type='button' value="Delete Table" onClick={props.handleTableDeleteClick}/>
+			<input type='button' value="Delete Table" onClick={props.handleDeleteTableClick}/>
 		</div>
-		);
+	);
 }
 
 
@@ -335,6 +401,7 @@ class Tablespace extends Component {
 		super(props);
 		this.state = {
 			table_id: props.table_id,
+			user_id: props.user_id,
 			tabledata: {},
 			fetched: false,
 			message: 'Fetching data from server...',
@@ -347,7 +414,7 @@ class Tablespace extends Component {
 		this.handleUpdateBlur = this.handleUpdateBlur.bind(this);
 		this.handleDeleteClick = this.handleDeleteClick.bind(this);
 		this.handleNewRowDataChange = this.handleNewRowDataChange.bind(this);
-		this.handleTableDeleteClick = this.handleTableDeleteClick.bind(this);
+		this.handleDeleteTableClick = this.handleDeleteTableClick.bind(this);
 		this.doTableDelete = props.doTableDelete;
 	}
 
@@ -374,10 +441,12 @@ class Tablespace extends Component {
 			return response.json();
 		})
 		.then(function(result) {
-			if(result['code'] === 'not-exists')
+			if(result.data['code'] === 'not-exists')
+			{
 				that.setState({message: "The table does not exist!", fetched: false})
+			}
 			else
-				that.setState({fetched: true, tableData: result});
+				that.setState({fetched: true, tableData: result, newRow: {}});
 		})
 		.catch(function(error) {
 			that.setState({message: 'Failed to fetch from servers. Please try again later'});
@@ -410,6 +479,7 @@ class Tablespace extends Component {
 		var body = {
 			"table_id": this.state.table_id,
 			"columns": {},
+			"user_id": this.state.user_id,
 		} 
 
 		for (var i = Object.keys(this.state.newRow).length - 1; i >= 0; i--) {
@@ -447,6 +517,7 @@ class Tablespace extends Component {
 				[colname]: value
 			},
 			"sno": sno,
+			"user_id": this.state.user_id,
 		};
 
 		requestOptions.body = JSON.stringify(body);
@@ -477,11 +548,10 @@ class Tablespace extends Component {
 		var body = {
 			"table_id": this.state.table_id,
 			"sno": sno,
+			"user_id": this.state.user_id,
 		};
 
 		requestOptions.body = JSON.stringify(body);
-
-		alert(requestOptions.body);
 
 		fetch(url, requestOptions)
 		.then(function(response) {
@@ -497,9 +567,23 @@ class Tablespace extends Component {
 	}
 
 	handleInsertClick(event) {
+		var blankRow = true;
 		if(Object.keys(this.state.newRow).length !== 0)
 		{
-			this.doInsert();
+			var tempRow = {};
+			for (var i = Object.keys(this.state.newRow).length - 1; i >= 0; i--) {
+
+				if(this.state.newRow[Object.keys(this.state.newRow)[i]]!=='')
+				{
+					blankRow = false;
+				}
+				tempRow[Object.keys(this.state.newRow)[i]] = '';
+			}
+			this.setState({newRow: tempRow});
+			if (! blankRow)
+				this.doInsert();
+			else
+				alert("Nothing to insert!");
 		}
 		else
 			alert("Nothing to insert!");
@@ -533,8 +617,7 @@ class Tablespace extends Component {
 		var sno = target.getAttribute("sno");
 
 		this.setState({editing: {sno: undefined, colname: undefined}});
-		if(value !== "")
-			this.doUpdate(sno, colname, value);
+		this.doUpdate(sno, colname, value);
 	}
 
 	handleDeleteClick(event) {
@@ -563,7 +646,7 @@ class Tablespace extends Component {
 						handleUpdateBlur={this.handleUpdateBlur}
 						handleDeleteClick={this.handleDeleteClick} 
 						handleNewRowDataChange={this.handleNewRowDataChange} 
-						handleTableDeleteClick={this.handleTableDeleteClick}
+						handleDeleteTableClick={this.handleDeleteTableClick}
 						editing={this.state.editing}
 						newRow={this.state.newRow}
 					/>
@@ -581,7 +664,7 @@ class Tablespace extends Component {
 function CreateTableDialog(props) {
 	var i = 1;
 	const columns = Object.entries(props.newTable.slice(1)).map((value) =>
-		<div>
+		<div key={i}>
 			<span>Column Name: </span>
 			<input type='text' name={i} value={props.newTable[i].split('_').join(' ')} onChange={props.handleNewTableChange}/>
 			<input type='button' name={i++} value="Delete" onClick={props.handleRemoveRowRequest}/>
@@ -605,6 +688,7 @@ function CreateTableDialog(props) {
 		</div>
 	);
 }
+
 
 class Dashboard extends Component {
 	constructor(props)
@@ -642,8 +726,6 @@ class Dashboard extends Component {
 			"table_name": this.state.newTable.data[0],
 			"columns": this.state.newTable.data.slice(1),
 		} 
-
-		var that = this;
 
 		requestOptions.body = JSON.stringify(body);
 
@@ -718,6 +800,37 @@ class Dashboard extends Component {
 
 	doTableDelete(){
 		alert("Dropping table!");
+		var url = "https://app.cramping38.hasura-app.io/drop-table";
+
+		var requestOptions = {
+		    "method": "POST",
+		    "headers": {
+		        "Content-Type": "application/json"
+		    }
+		};
+
+		var body = {
+			"user_id": this.state.hasura_id,
+			"table_id": this.state.table_id,
+		} 
+
+		var that = this;
+
+		requestOptions.body = JSON.stringify(body);
+
+		alert(requestOptions.body);
+
+		fetch(url, requestOptions)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(result) {
+			that.setState({table_id: null});
+		})
+		.catch(function(error) {
+			alert(error);
+			console.log('Failed: ' + error);
+		});
 	}
 
 	doLogout(event) {
@@ -770,7 +883,7 @@ class Dashboard extends Component {
 							hasura_id={this.state.hasura_id} 
 							handleTableClick={this.handleTableClick} 
 							doLogout={this.doLogout}
-							openCreateTableDialog={this.openCreateTableDialog}
+							openCreateTableDialog={this.openCreateTableDialog} 
 						/>
 						{
 							this.state.table_id == null ?
@@ -789,6 +902,7 @@ class Dashboard extends Component {
 							:
 							<Tablespace 
 								table_id={this.state.table_id}
+								user_id={this.state.hasura_id}
 								doTableDelete={this.doTableDelete}
 							/>		
 						}
