@@ -9,7 +9,7 @@ import os
 
 @app.route("/")
 def home():
-    return os.environ['zap.key']
+    return os.environ['ZAPURL']
 
 @app.route("/json")
 def json_message():
