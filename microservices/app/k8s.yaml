@@ -18,12 +18,6 @@ items:
         labels:
           app: app
       spec:          
-        env:
-          - name: ZAPURL
-            valueFrom:
-              secretKeyRef:
-                name: hasura-secrets
-                key: 'zap.key'
         containers:
         - image: hasura/hello-world:latest
           env:
@@ -31,6 +25,11 @@ items:
             value: "true"
           - name: CLUSTER_NAME 
             value: {{ cluster.name }}
+          - name: ZAPURL
+          valueFrom:
+            secretKeyRef:
+              name: hasura-secrets
+              key: 'zap.key'
           imagePullPolicy: IfNotPresent
           name: app
           ports:

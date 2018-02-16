@@ -6,11 +6,11 @@ from flask import request
 import datetime
 import os
 
+zapurl = print(os.environ['ZAPURL'])
 
 @app.route("/")
 def home():
-	print(os.environ)
-    return "Hasura Hello World"
+    return zapurl
 
 @app.route("/json")
 def json_message():
