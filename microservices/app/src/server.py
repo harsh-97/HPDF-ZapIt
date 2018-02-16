@@ -8,10 +8,6 @@ import os
 
 
 
-app=Flask(__name__)
-app.debug=True
-
-
 @app.route("/")
 def home():
     return "Hasura Hello World"
