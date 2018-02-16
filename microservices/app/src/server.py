@@ -9,7 +9,7 @@ import os
 
 @app.route("/")
 def home():
-    return os.environ['ZAPURL']
+    return "Hasura Hello World"
 
 @app.route("/json")
 def json_message():
