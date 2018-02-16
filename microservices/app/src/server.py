@@ -227,9 +227,11 @@ def create_table():
 	newHeaders = {
 	    "Content-Type": "application/json"
 	}
+	print("ZAP URL: ", zapurl)
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
+	print("REQUEST MADE: ", zap_resp)
 	zap_resp=zap_resp.json()
-	print(zap_resp)
+	print("CONTENTS OF RESP: ", zap_resp)
 
 	return(json.dumps(resp))
 
