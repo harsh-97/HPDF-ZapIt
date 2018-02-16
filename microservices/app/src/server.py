@@ -9,6 +9,7 @@ import os
 
 @app.route("/")
 def home():
+	print(os.environ)
     return "Hasura Hello World"
 
 @app.route("/json")

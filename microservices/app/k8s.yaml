@@ -23,7 +23,7 @@ items:
             valueFrom:
               secretKeyRef:
                 name: hasura-secrets
-                key: zap.key
+                key: 'zap.key'
         containers:
         - image: hasura/hello-world:latest
           env:
