@@ -24,8 +24,10 @@ def json_message():
 def userTables():
 	#Getting the table ids from the user-tables
 	url = "https://data.cramping38.hasura-app.io/v1/query"
+
 	user_id=request.json
 	user_id=user_id['user_id']
+
 	requestPayload = {
 	    "type": "select",
 	    "args": {
@@ -40,14 +42,16 @@ def userTables():
 	        }
 	    }
 	}
+
 	headers = {
     "Content-Type": "application/json",
     "Authorization": "Bearer " + authtoken
 	}
+
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
-	
 	resp=resp.json()
 	details={}
+
 	for i in range(len(resp)):
 		table_id=resp[i]['table_id']
 		details[table_id] =table_details(table_id)
@@ -55,9 +59,9 @@ def userTables():
 	return (json.dumps(details))
 
 
-
 def table_details(table_id):
 	url = "https://data.cramping38.hasura-app.io/v1/query"
+
 	requestPayload = {
 	    "type": "select",
 	    "args": {
@@ -80,11 +84,9 @@ def table_details(table_id):
 	    "Authorization": "Bearer " + authtoken
 	}
 
-	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
-	
 	resp = resp.json()
-	print(resp)
+
 	return(resp[0])
 
 
@@ -93,7 +95,6 @@ def table_details(table_id):
 def fetch_table_data():
 	table_id=request.json;
 	table_id=table_id['table_id']
-	print(table_id)
 
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 
@@ -111,7 +112,9 @@ def fetch_table_data():
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer " + authtoken
 	}
+
 	sql_string=("SELECT column_name from information_schema.columns where table_name='%s' ;" %table_id)
+
 	requestPayload2 = {
     "type" : "run_sql",
     "args" : {
@@ -120,14 +123,12 @@ def fetch_table_data():
     	},
 	}
 	
-	
 	resp1 = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp1 = resp1.json()
-	print(resp1)
 	resp2 = requests.request("POST", url, data=json.dumps(requestPayload2), headers=headers)
 	resp2=resp2.json()
-	print(resp2["result"])
 	respDict={"data":resp1,"columns":resp2["result"]}
+
 	return(json.dumps(respDict))
 
 
@@ -138,9 +139,9 @@ def create_table():
 	user_id=data['user_id']
 	table_name=data['table_name']
 	col=data['columns']
-
 	#adding data in table_details
 	#updating the table details
+
 	Data={
 		"name":"Table_details",
 		"columns": {
@@ -149,9 +150,11 @@ def create_table():
 			"date_last_modified":datetime.datetime.today().strftime("%Y-%m-%d")
 		}
 	}
+
 	insert_data_table_details(Data)
 	#fetching table_id
 	url = "https://data.cramping38.hasura-app.io/v1/query"
+
 	requestPayload = {
 	    "type": "select",
 	    "args": {
@@ -176,26 +179,28 @@ def create_table():
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer " + authtoken
 	}
+
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
-	print(resp)
 	table_id=resp[0]['table_id']
 
 	#creating a sql string
 	#creating a new table
 	sql_string=('CREATE TABLE "%s" (sno  SERIAL NOT NULL PRIMARY KEY ' %(table_id))
+
 	for val in col:
 		sql_string=sql_string+","+val+" TEXT "
 	sql_string=sql_string+");"
 
-	print(sql_string)
 	url = "https://data.cramping38.hasura-app.io/v1/query"
+
 	requestPayload = {
     "type" : "run_sql",
     "args" : {
         "sql" :	sql_string
     	}
 	}
+
 	headers = {
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer " + authtoken
@@ -203,7 +208,6 @@ def create_table():
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
-	print(resp)
 
 	#adding in the tracked table
 	table_id=str(table_id)
@@ -213,9 +217,9 @@ def create_table():
 	    "name": table_id
 	    }
 	}
+
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
-	print(resp) 
 
 	#Zapier Zap:
 	Zaprequest = {
@@ -223,15 +227,13 @@ def create_table():
 	"table_id":table_id,
 	"action":"Create Table"
 	}
-	print(json.dumps(Zaprequest))
+
 	newHeaders = {
 	    "Content-Type": "application/json"
 	}
-	print("ZAP URL: ", zapurl)
+
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
-	print("REQUEST MADE: ", zap_resp)
 	zap_resp=zap_resp.json()
-	print("CONTENTS OF RESP: ", zap_resp)
 
 	return(json.dumps(resp))
 
@@ -246,6 +248,7 @@ def insert_data():
 
 	#creating sql string
 	sql_string=('INSERT INTO "%s" (' %(table_id))
+
 	colname=""
 	colvalue=""
 	for key in col.keys():
@@ -260,8 +263,8 @@ def insert_data():
 	colvalue=colvalue[:-2]
 	sql_string=sql_string+colname+")"+" values ("+colvalue+");"
 
-	print(sql_string)
 	url = "https://data.cramping38.hasura-app.io/v1/query"
+
 	requestPayload = {
     "type" : "run_sql",
     "args" : {
@@ -269,6 +272,7 @@ def insert_data():
 
     	},
 	}
+
 	headers = {
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer " + authtoken
@@ -276,7 +280,6 @@ def insert_data():
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
-	print(resp)
 
 	#Zapier Zap:
 	Zaprequest = {
@@ -290,8 +293,6 @@ def insert_data():
 	}
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
-	print(zap_resp)
-
 
 	return(json.dumps(resp))
 
@@ -303,6 +304,7 @@ def insert_data_table_details(data):
 
 	#creating sql string
 	sql_string=('INSERT INTO "%s" (' %(name))
+
 	colname=""
 	colvalue=""
 	for key in col.keys():
@@ -317,8 +319,8 @@ def insert_data_table_details(data):
 	colvalue=colvalue[:-2]
 	sql_string=sql_string+colname+")"+" values ("+colvalue+");"
 
-	print(sql_string)
 	url = "https://data.cramping38.hasura-app.io/v1/query"
+
 	requestPayload = {
     "type" : "run_sql",
     "args" : {
@@ -326,6 +328,7 @@ def insert_data_table_details(data):
 
     	},
 	}
+
 	headers = {
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer " + authtoken
@@ -333,7 +336,7 @@ def insert_data_table_details(data):
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
-	print(resp)
+
 	return(json.dumps(resp))
 
 
@@ -345,6 +348,7 @@ def update_table():
 	col=data['columns']
 	sno=data['sno']
 	user_id=data['user_id']
+
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 
 	table_id=str(table_id)
@@ -363,15 +367,14 @@ def update_table():
 	        "$set": sql_dict
 	    }
 	}
-	print(requestPayload)
-	# Setting headers
+
 	headers = {
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer " + authtoken
 	}
+
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp=resp.json()
-	print(resp)
 
 	#Zapier Zap:
 	Zaprequest = {
@@ -383,9 +386,9 @@ def update_table():
 	newHeaders = {
 	    "Content-Type": "application/json"
 	}
+
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
-	print(zap_resp)
 
 	return(json.dumps(resp))
 
@@ -397,6 +400,7 @@ def delete_rows():
 	table_id=data['table_id']
 	user_id=data['user_id']
 	sno=data['sno']
+
 	url = "https://data.cramping38.hasura-app.io/v1/query"
 
 	table_id=str(table_id)
@@ -413,7 +417,6 @@ def delete_rows():
 	    }
 	}
 
-	# Setting headers
 	headers = {
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer " + authtoken
@@ -422,7 +425,6 @@ def delete_rows():
 
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp=resp.json()
-	print(resp)
 
 	#Zapier Zap:
 	Zaprequest = {
@@ -436,7 +438,6 @@ def delete_rows():
 	}
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
-	print(zap_resp)
 
 	return(json.dumps(resp))
 
@@ -449,14 +450,15 @@ def drop_table():
 	table_id=data['table_id']
 	sql_string=('DROP TABLE "%s" ;' %table_id)
 	
-	print(sql_string)
 	url = "https://data.cramping38.hasura-app.io/v1/query"
+
 	requestPayload = {
     "type" : "run_sql",
     "args" : {
         "sql" :	sql_string
     	}
 	}
+
 	headers = {
 	    "Content-Type": "application/json",
 	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
@@ -464,7 +466,7 @@ def drop_table():
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
-	print(resp)
+
 	requestPayload = {
     "type": "delete",
     "args": {
@@ -476,9 +478,9 @@ def drop_table():
         	}
     	}
 	}
+
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
 	resp = resp.json()
-	print(resp)
 
 	#Zapier Zap:
 	Zaprequest = {
@@ -492,6 +494,5 @@ def drop_table():
 	}
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
-	print(zap_resp)
-
 	return(json.dumps(resp))
+
