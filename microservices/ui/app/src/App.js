@@ -3,22 +3,28 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Mui from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme'; 
-import {yellow200, white} from 'material-ui/styles/colors';
+import {lime300, white, lime900, red600} from 'material-ui/styles/colors';
+
 import Paper from 'material-ui/Paper';
-import RaisedButton from 'material-ui/RaisedButton';
-
-
+import {List, ListItem} from 'material-ui/List';
+import TextField from 'material-ui/TextField';
+import FlatButton from 'material-ui/FlatButton';
 import IconButton from 'material-ui/IconButton';
 
+import LightningIcon from 'material-ui/svg-icons/image/flash-on';
 import PinWheelIcon from 'material-ui/svg-icons/hardware/toys';
+import PlusIcon from 'material-ui/svg-icons/content/add-circle';
+import MinusIcon from 'material-ui/svg-icons/toggle/indeterminate-check-box';
+import DeleteIcon from 'material-ui/svg-icons/action/delete-forever';
 
 import './App.css';
 
 
 const muiTheme = getMuiTheme({
 		palette: {
-			primary1Color: yellow200,
+			primary1Color: lime300,
 			alternate1Color: white,
+			accent1Color: lime900,
 		},
 	    fontFamily: 'Arial, sans-serif',
 });
@@ -26,8 +32,8 @@ const muiTheme = getMuiTheme({
 
 function SignupDialog(props) {
 	return(
-		<Paper zDepth={0} className='loginBox' zDepth={2} style={{background: muiTheme.palette.primary1Color}}>
-			<h4>Signup</h4>
+		<div>
+			<span style={{fontWeight: 'bold'}}>Signup</span>
 			<table>
 			<tbody>
 				<tr>
@@ -50,17 +56,16 @@ function SignupDialog(props) {
 			</table>
 			<br/>
 			{props.message} <br/>
-			<input type='button' value="Sign up" onClick={props.doSignup}
-			/>
-		</Paper>
+			<input type='button' value="Sign up" onClick={props.doSignup}/>
+		</div>
 	);
 }
 
 
 function LoginDialog(props) {
 	return(
-		<Paper zDepth={0} className='loginBox' zDepth={2} style={{background: muiTheme.palette.primary1Color}}>
-			<h4>Login</h4>
+		<div>
+			<span style={{fontWeight: 'bold'}}>Login</span>
 			<form onSubmit={props.handleSubmit}>
 			<table>
 			<tbody>
@@ -85,10 +90,9 @@ function LoginDialog(props) {
 			<br/>
 			<input name="submit" type="submit" value="Login"/>
 			</form>
-			<br/>
-			{props.message} <br/>
+			{props.message} <br/><br/>
 			New user? Click here to <span onClick={props.handleSignUpClick}><u>Sign Up</u></span>
-		</Paper>
+		</div>
 	);
 }
 
@@ -181,7 +185,7 @@ class Login extends Component {
 	}
 
 	handleSignUpClick(event) {
-		this.setState({signUp: true});
+		this.setState({signUp: true, message: ''});
 	}
 
 	doSignup(event){
@@ -248,28 +252,34 @@ class Login extends Component {
 		return(
 			<Mui muiTheme={muiTheme}>
 				<div className='login'>
-				{
-					this.state.signUp?
-						<SignupDialog 
-							doSignup={this.doSignup}
-							handleChange={this.handleChange}
-							username={this.state.username}
-							password={this.state.password}
-							message={this.state.message}
-						/>
-					:
-						this.state.loggedIn?
-						<Redirect to="/"/>
+				<Paper className='loginBox' zDepth={2} style={{background: muiTheme.palette.primary1Color}}>
+				<div className="smallTitle">
+					ZapIt
+					<LightningIcon style={{width:40, height: 40, marginLeft: '1%'}} color={muiTheme.palette.alternate1Color}/>
+				</div>
+					{
+						this.state.signUp?
+							<SignupDialog 
+								doSignup={this.doSignup}
+								handleChange={this.handleChange}
+								username={this.state.username}
+								password={this.state.password}
+								message={this.state.message}
+							/>
 						:
-						<LoginDialog 
-							handleSubmit={this.handleSubmit} 
-							handleChange={this.handleChange}
-							handleSignUpClick={this.handleSignUpClick} 
-							username={this.state.username} 
-							password={this.state.password}
-							message={this.state.message}
-						/>
-				}
+							this.state.loggedIn?
+							<Redirect to="/"/>
+							:
+							<LoginDialog 
+								handleSubmit={this.handleSubmit} 
+								handleChange={this.handleChange}
+								handleSignUpClick={this.handleSignUpClick} 
+								username={this.state.username} 
+								password={this.state.password}
+								message={this.state.message}
+							/>
+					}
+				</Paper>
 				</div>
 			</Mui>
 		);
@@ -280,19 +290,15 @@ class Login extends Component {
 function UnpackTableList(props){
 	const data = props.data;
 	const listTables = Object.entries(data).map(([key, table]) =>
-			<div 
-				key={key} 
-				tableid={key} 
-				datecreated={table['date_created']} 
-				datemodified={table['date_last_modified']} 
-				onClick={props.handleClick}
-			>
-					{table['table_name']}<hr/>
-			</div>
+			<ListItem key={key} onClick={() => props.handleClick(key)}>
+				{table['table_name']}
+			</ListItem>
 		);
 
 	return (
-		<div>{listTables}</div>
+		<List>
+			{listTables}
+		</List>
 		);
 }
 
@@ -353,9 +359,13 @@ class Sidebar extends Component {
 		return(
 			<div className="sidebar" style={{background: muiTheme.palette.primary1Color}}>
 				<div>
-					ZapIt<br/>
-					{this.state.username}<br/>
-					<hr/>
+					<div className="nameInfoBox">
+						<div className="bigTitle">
+							ZapIt
+							<LightningIcon style={{width:40, height: 40, marginLeft: '1%'}} color={muiTheme.palette.alternate1Color}/>
+						</div><br/>
+						<div className="username">Hello {this.state.username}!</div>
+					</div>
 					<hr/>
 					{
 						this.state.fetched ?
@@ -376,8 +386,8 @@ class Sidebar extends Component {
 					}
 				</div>
 				<div>
-					<RaisedButton label="New Table" className="sidebarButton" onClick={this.openCreateTableDialog}/><br/>
-					<RaisedButton label="Logout" className="sidebarButton" onClick={this.doLogout}/>
+					<FlatButton label="New Table" secondary={true} className="sidebarButton" onClick={this.openCreateTableDialog}/><br/>
+					<FlatButton label="Logout" secondary={true} className="sidebarButton" onClick={this.doLogout}/>
 				</div>
 			</div>
 		);
@@ -410,7 +420,7 @@ function UnpackTableData(props){
 							{
 								return(
 									<td key={key} colname={key} sno={row['sno']}>
-										<input autoFocus type="text" sno={row['sno']} colname={key} placeholder={row[key]} onBlur={props.handleUpdateBlur}/>
+										<TextField autoFocus type="text" sno={row['sno']} colname={key} hintText={row[key]} onBlur={props.handleUpdateBlur}/>
 									</td>
 								);
 							}
@@ -425,7 +435,9 @@ function UnpackTableData(props){
 					})
 				}
 				<td key={row['sno']}>
-					<input type="button" sno={row['sno']} value="Delete Row" onClick={props.handleDeleteClick}/>
+					<IconButton tooltip="Delete Row" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, marginLeft: '5%'}} onClick={() => props.handleDeleteClick(row['sno'])}>
+						<MinusIcon color={muiTheme.palette.primary1Color}/>
+					</IconButton>
 				</td>
 			</tr>
 		);
@@ -450,13 +462,15 @@ function UnpackTableData(props){
 		if(column === 'button')
 			return(
 				<td key={'insert'}>
-					<input type="button" value="Insert Row" onClick={props.handleInsertClick}/>
+					<IconButton tooltip="Insert Row" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} onClick={props.handleInsertClick}>
+						<PlusIcon color={muiTheme.palette.primary1Color}/>
+					</IconButton>
 				</td>
 			);
 		else if(column !== 'sno')
 			return(
 				<td key={column}>
-					<input type='text' name={column} onChange={props.handleNewRowDataChange} value={props.newRow[column]}/>
+					<TextField type='text' name={column} onChange={props.handleNewRowDataChange} value={props.newRow[column]}/>
 				</td>
 			);
 	});
@@ -476,7 +490,7 @@ function UnpackTableData(props){
 				</tr>
 			</tbody>
 			</table>
-			<input type='button' value="Delete Table" onClick={props.handleDeleteTableClick}/>
+			<FlatButton label="Delete Table" labelPosition="before" secondary={true} icon={<DeleteIcon style={{width: 30, height: 30}} color={red600}/>} style={{color: red600}} onClick={props.handleDeleteTableClick}/>
 		</div>
 	);
 }
@@ -580,6 +594,7 @@ class Tablespace extends Component {
 			return response.json();
 		})
 		.then(function(result) {
+			alert("Inserted Entry and Recorded in logs!");
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -613,6 +628,7 @@ class Tablespace extends Component {
 			return response.json();
 		})
 		.then(function(result) {
+			alert("Updated Entry and Recorded in logs!");
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -643,6 +659,7 @@ class Tablespace extends Component {
 			return response.json();
 		})
 		.then(function(result) {
+			alert("Deleted Entry and Recorded in logs!");
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -704,10 +721,7 @@ class Tablespace extends Component {
 		this.doUpdate(sno, colname, value);
 	}
 
-	handleDeleteClick(event) {
-		var target = event.target;
-		var sno = target.getAttribute("sno");
-
+	handleDeleteClick(sno) {
 		if(window.confirm("Are you sure!"))
 			this.doRowDelete(sno);
 	}
@@ -748,27 +762,51 @@ class Tablespace extends Component {
 function CreateTableDialog(props) {
 	var i = 1;
 	const columns = Object.entries(props.newTable.slice(1)).map((value) =>
-		<div key={i}>
-			<span>Column Name: </span>
-			<input type='text' name={i} value={props.newTable[i].split('_').join(' ')} onChange={props.handleNewTableChange}/>
-			<input type='button' name={i++} value="Delete" onClick={props.handleRemoveRowRequest}/>
-		</div>
+		<tr key={i}>
+			<td>
+				<span>Column Name: </span>
+			</td>
+			<td>
+				<TextField type='text' name={i} value={props.newTable[i].split('_').join(' ')} onChange={props.handleNewTableChange}/>
+			</td>
+			<td>
+				<input type='button' name={i++} value="Delete" onClick={props.handleRemoveRowRequest}/>
+			</td>
+		</tr>
 	);
 
 	return(
 		<div className="tablespace">
-			<div>
-				<span>Table Name: </span>
-				<input type='text' name={0} value={props.newTable[0]} onChange={props.handleNewTableChange}/>
-			</div>
-			{columns}
-			<input type='button' value='New Row' onClick={props.handleNewRowRequest}/>
-			{
-				props.newTable.length !== 1 ?
-				<input type='button' value='Create table' onClick={props.handleCreateTableRequest}/>
-				:
-				<span></span>
-			}
+			<table>
+			<tbody>
+				<tr>
+					<td>
+						<span>Table Name: </span>
+					</td>
+					<td>
+						<TextField type='text' name={0} value={props.newTable[0]} onChange={props.handleNewTableChange}/>
+					</td>
+					<td>
+					</td>
+				</tr>
+				{columns}
+				<tr>
+					<td>
+						<input type='button' value='New Row' onClick={props.handleNewRowRequest}/>
+					</td>
+					<td>
+						{
+							props.newTable.length !== 1 ?
+							<input type='button' value='Create table' onClick={props.handleCreateTableRequest}/>
+							:
+							<span></span>
+						}
+					</td>
+					<td>
+					</td>
+				</tr>
+			</tbody>
+			</table>
 		</div>
 	);
 }
@@ -818,6 +856,7 @@ class Dashboard extends Component {
 			return response.json();
 		})
 		.then(function(result) {
+			alert("Created Table and Recorded in logs!");
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -905,6 +944,7 @@ class Dashboard extends Component {
 		})
 		.then(function(result) {
 			that.setState({table_id: null});
+			alert("Removed Table and Recorded in logs!");
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -939,12 +979,8 @@ class Dashboard extends Component {
 		this.setState({auth_token: null, username: null, hasura_id: null});
 	}
 
-	handleTableClick(event) {
-		event.preventDefault();
-
-		var target = event.target;
-		var value = target.getAttribute('tableid');
-		this.setState({table_id: value});
+	handleTableClick(table_id) {
+		this.setState({table_id: table_id});
 	}
 
 	render()
@@ -975,7 +1011,7 @@ class Dashboard extends Component {
 								/>
 								:
 								<div className="tablespace">
-									<span>Select a table</span>
+									Select a table
 								</div>
 							:
 							<Tablespace 
@@ -995,10 +1031,14 @@ class Dashboard extends Component {
 function Page404(props) {
 	return(
 		<Mui muiTheme={muiTheme}>
-			<h4>Whoops! Looks like you ended up on a wrong page. Go to the Dashboard</h4>
-	    	<IconButton tooltip="Go to Dashboard" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30, padding: 10, marginLeft: '5%'}} href="/">
-				<PinWheelIcon color={muiTheme.palette.primary1Color}/>
-			</IconButton> <br/>	
+			<div className="login">
+				<div className="notFoundBox">
+					<h4>Whoops! Looks like you ended up on a wrong page. Go to the Dashboard</h4>
+		    		<IconButton tooltip="Go to Dashboard" iconStyle={{width: 30, height: 30}} style={{width: 30, height: 30}} href="/">
+						<PinWheelIcon color={muiTheme.palette.accent1Color}/>
+					</IconButton>
+				</div>
+			</div>	
 		</Mui>
 	);
 }

@@ -9,11 +9,41 @@
 	justify-content: center;
 }
 
+.notFoundBox {
+	margin: 5%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.nameInfoBox {
+	padding-left: 5%;
+	padding-top: 5%;
+}
+
+.bigTitle {
+	font-size: 180%;
+	margin-bottom: -3%;
+}
+
+.smallTitle {
+	font-size: 180%;
+	margin-bottom: 4%; 
+}
+
+.username {
+	margin-top: -3%;
+	font-size: 80%;
+}
+
 .dashboard {
   display: flex;
   direction: row;
 }
 
+.tableNameList {
+
+}
 
 .sidebar {
   width: 15%;
@@ -27,8 +57,14 @@
 
 .tablespace {
   margin-left: 15%;
+  padding-left: 3%;
+  padding-top: 2%;
 }
 
 .sidebarButton {
 	width: 100%;
+}
+
+body {
+	background-color: #F9FBE7;
 }
