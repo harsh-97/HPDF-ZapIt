@@ -461,7 +461,7 @@ def drop_table():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer 3b1228c491387cac6c8a09797f61c5e5190957e2f8866b65"
+	    "Authorization": "Bearer " + authtoken,
 	}
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
