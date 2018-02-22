@@ -10,6 +10,7 @@ import {List, ListItem} from 'material-ui/List';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
 import IconButton from 'material-ui/IconButton';
+import CircularProgress from 'material-ui/CircularProgress';
 
 import LightningIcon from 'material-ui/svg-icons/image/flash-on';
 import PinWheelIcon from 'material-ui/svg-icons/hardware/toys';
@@ -508,6 +509,7 @@ class Tablespace extends Component {
 			message: 'Fetching data from server...',
 			editing: {sno: undefined, colname: undefined},
 			newRow: {},
+			loading: true,
 		}
 
 		this.handleInsertClick = this.handleInsertClick.bind(this);
@@ -537,6 +539,8 @@ class Tablespace extends Component {
 
 		requestOptions.body = JSON.stringify(body);
 
+		this.setState({loading: true});
+
 		fetch(url, requestOptions)
 		.then(function(response) {
 			return response.json();
@@ -547,7 +551,7 @@ class Tablespace extends Component {
 				that.setState({message: "The table does not exist!", fetched: false})
 			}
 			else
-				that.setState({fetched: true, tableData: result, newRow: {}});
+				that.setState({fetched: true, tableData: result, newRow: {}, loading: false});
 		})
 		.catch(function(error) {
 			that.setState({message: 'Failed to fetch from servers. Please try again later'});
@@ -556,11 +560,10 @@ class Tablespace extends Component {
 	}
 
 	componentDidMount() {
-		this.fetchTableData(this.state.table_id);
-	}
+		this.fetchTableData(this.state.table_id);}
 
 	componentWillReceiveProps(nextProps) {
-		if(this.state.table_id !== nextProps.table_id)
+		if(nextProps.table_id !== null)
 		{
 			this.fetchTableData(nextProps.table_id);
 			this.setState({table_id: nextProps.table_id});
@@ -589,12 +592,16 @@ class Tablespace extends Component {
 
 		requestOptions.body = JSON.stringify(body);
 
+		var that = this;
+
+		this.setState({loading: true});
+
 		fetch(url, requestOptions)
 		.then(function(response) {
 			return response.json();
 		})
 		.then(function(result) {
-			alert("Inserted Entry and Recorded in logs!");
+			that.setState({loading: false});
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -623,12 +630,16 @@ class Tablespace extends Component {
 
 		requestOptions.body = JSON.stringify(body);
 
+		var that = this;
+
+		this.setState({loading: true});
+
 		fetch(url, requestOptions)
 		.then(function(response) {
 			return response.json();
 		})
 		.then(function(result) {
-			alert("Updated Entry and Recorded in logs!");
+			that.setState({loading: false});
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -654,12 +665,16 @@ class Tablespace extends Component {
 
 		requestOptions.body = JSON.stringify(body);
 
+		var that = this;
+
+		this.setState({loading: true});
+
 		fetch(url, requestOptions)
 		.then(function(response) {
 			return response.json();
 		})
 		.then(function(result) {
-			alert("Deleted Entry and Recorded in logs!");
+			that.setState({loading: false});
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -735,6 +750,15 @@ class Tablespace extends Component {
 	render() {
 		return (
 			<div className="tablespace">
+				<div className="status">
+					{
+						this.state.loading ?
+						<CircularProgress size={16}/>
+						:
+						<span>All changes synced and logged</span>
+
+					}
+				</div>
 		    	{
 					this.state.fetched ?
 					<UnpackTableData 
@@ -784,7 +808,7 @@ function CreateTableDialog(props) {
 						<span>Table Name: </span>
 					</td>
 					<td>
-						<TextField type='text' name={0} value={props.newTable[0]} onChange={props.handleNewTableChange}/>
+						<TextField type='text' name='0' value={props.newTable[0]} onChange={props.handleNewTableChange}/>
 					</td>
 					<td>
 					</td>
