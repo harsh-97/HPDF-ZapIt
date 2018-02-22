@@ -816,7 +816,7 @@ function CreateTableDialog(props) {
 				{columns}
 				<tr>
 					<td>
-						<input type='button' value='New Row' onClick={props.handleNewRowRequest}/>
+						<input type='button' value='New Column' onClick={props.handleNewRowRequest}/>
 					</td>
 					<td>
 						{
