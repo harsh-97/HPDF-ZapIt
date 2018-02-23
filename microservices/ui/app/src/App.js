@@ -541,8 +541,6 @@ class Tablespace extends Component {
 
 		requestOptions.body = JSON.stringify(body);
 
-		this.setState({loading: true});
-
 		fetch(url, requestOptions)
 		.then(function(response) {
 			return response.json();
@@ -588,7 +586,7 @@ class Tablespace extends Component {
 			"user_id": this.state.user_id,
 		} 
 
-		for (var i = Object.keys(this.state.newRow).length - 1; i >= 0; i--) {
+		for (var i = Object.keys(this.state.newRow).length - 1; i>=0; i--) {
 			body["columns"][Object.keys(this.state.newRow)[i]] = this.state.newRow[Object.keys(this.state.newRow)[i]];
 		};
 
@@ -603,7 +601,6 @@ class Tablespace extends Component {
 			return response.json();
 		})
 		.then(function(result) {
-			that.setState({loading: false});
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -641,7 +638,6 @@ class Tablespace extends Component {
 			return response.json();
 		})
 		.then(function(result) {
-			that.setState({loading: false});
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
@@ -676,7 +672,6 @@ class Tablespace extends Component {
 			return response.json();
 		})
 		.then(function(result) {
-			that.setState({loading: false});
 		})
 		.catch(function(error) {
 			console.log('Failed: ' + error);
