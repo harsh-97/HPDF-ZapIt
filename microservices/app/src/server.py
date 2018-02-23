@@ -7,10 +7,7 @@ import datetime
 import os
 
 zapurl = os.environ['ZAPURL']
-authtoken = os.environ['AUTH_TOKEN']
-
 clustername = os.environ['CLUSTER_NAME']
-print(clustername)
 
 @app.route("/")
 def home():
@@ -48,7 +45,6 @@ def userTables():
 
 	headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer " + authtoken
 	}
 
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -84,7 +80,6 @@ def table_details(table_id):
 	
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer " + authtoken
 	}
 
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -113,7 +108,6 @@ def fetch_table_data():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer " + authtoken
 	}
 
 	sql_string=("SELECT column_name from information_schema.columns where table_name='%s' ;" %table_id)
@@ -180,7 +174,6 @@ def create_table():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer " + authtoken
 	}
 
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -206,7 +199,6 @@ def create_table():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer " + authtoken
 	}
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -232,7 +224,7 @@ def create_table():
 	}
 
 	newHeaders = {
-	    "Content-Type": "application/json"
+	    "Content-Type": "application/json",
 	}
 
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
@@ -278,7 +270,6 @@ def insert_data():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer " + authtoken
 	}
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -292,7 +283,7 @@ def insert_data():
 	}
 
 	newHeaders = {
-	    "Content-Type": "application/json"
+	    "Content-Type": "application/json",
 	}
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
@@ -334,7 +325,6 @@ def insert_data_table_details(data):
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer " + authtoken
 	}
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -373,7 +363,6 @@ def update_table():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer " + authtoken
 	}
 
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -387,7 +376,7 @@ def update_table():
 	}
 
 	newHeaders = {
-	    "Content-Type": "application/json"
+	    "Content-Type": "application/json",
 	}
 
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
@@ -422,7 +411,6 @@ def delete_rows():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer " + authtoken
 	}
 
 
@@ -437,7 +425,7 @@ def delete_rows():
 	}
 
 	newHeaders = {
-	    "Content-Type": "application/json"
+	    "Content-Type": "application/json",
 	}
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
@@ -464,7 +452,6 @@ def drop_table():
 
 	headers = {
 	    "Content-Type": "application/json",
-	    "Authorization": "Bearer " + authtoken,
 	}
 	
 	resp = requests.request("POST", url, data=json.dumps(requestPayload), headers=headers)
@@ -493,9 +480,8 @@ def drop_table():
 	}
 
 	newHeaders = {
-	    "Content-Type": "application/json"
+	    "Content-Type": "application/json",
 	}
 	zap_resp = requests.request("POST", zapurl, data=json.dumps(Zaprequest), headers=newHeaders)
 	zap_resp=zap_resp.json()
 	return(json.dumps(resp))
-
