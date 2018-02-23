@@ -21,7 +21,7 @@ items:
         containers:
         - image: hasura/base-git-image:0.7
           env:
-            - name: CLUSTER_NAME 
+            - name: REACT_APP_CLUSTER_NAME 
               value: {{ cluster.name }}
           imagePullPolicy: IfNotPresent
           name: ui
