@@ -47,22 +47,6 @@ A button placed at the bottom of the page marked `Delete Table` is used to delet
 A browser refresh may be required to update the list of tables on the Sidebar
 
 
-### Deploying on Another Cluster
-The `app` microservice (the backend), has been set up to be cluster independent, while the `ui` microservice (the frontend), is *almost* cluster independent. You will have to change a variable to get all requests pointed to your cluster
-
-1. Run the command `hasura quickstart gauri_97/zapit`
-2. Run the command `cd zapit/microservices/ui/app/src`
-3. Open up `App.js` and edit line 24 
-
-    >const CLUSTER_NAME = <clustername>;
-
-    Replace <clustername> with the name of your cluster, save and exit
-
-4. `cd ../../../..` and run `git add . && git commit -m "First Commit"`
-5. Run the command `git push hasura master`. Once that is complete, Zapit has been deployed on your cluster
-6. Go on ahead to `ui.<clustername>.hasura-app.io/`
-
-
 ### Internal Implementation Details
 #### Zapier Zap Integration
 The Zapier webservice is used in this application and whenever a user makes change to a table in the UI, a webhook is sent to Zapier with the following information:
@@ -84,6 +68,24 @@ There will arise a situation where you would require to change the location wher
 This is done relatively straightforward. Enter `hasura secrets update zap.key <new url>`
 
 Hey presto! All webhooks are now sent to the new Zap
+
+
+### Deploying on Another Cluster
+The `app` microservice (the backend), has been set up to be cluster independent, while the `ui` microservice (the frontend), is *almost* cluster independent. You will have to change a variable to get all requests pointed to your cluster
+
+1. Run the command `hasura quickstart gauri_97/zapit`
+2. Run the command `cd zapit/microservices/ui/app/src`
+3. Open up `App.js` and edit line 24 
+
+    >const CLUSTER_NAME = <clustername>;
+
+    Replace `<clustername>` with the name of your cluster, save and exit
+
+4. Assuming you've already created a Zapier Zap, and set it to listen to a webhook (if you haven't go to the previous section and create a Zap with those specifications), go on ahead and run the command `hasura secrets update zap.key <new url>`, where `<new url>` is replaced with your Zap URL
+5. `cd ../../../..` and run `git add . && git commit -m "First Commit"`
+6. Run the command `git push hasura master`. Once that is complete, Zapit has been deployed on your cluster
+7. Go on ahead to `ui.<clustername>.hasura-app.io/`
+
 
 ### Additional Notes
 + The changes made to the database via users are, as of yet, **irreversible**.
