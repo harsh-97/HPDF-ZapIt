@@ -26,7 +26,7 @@ def json_message():
 @app.route('/user-tables',methods=['POST'])
 def userTables():
 	#Getting the table ids from the user-tables
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	user_id=request.json
 	user_id=user_id['user_id']
@@ -63,7 +63,7 @@ def userTables():
 
 
 def table_details(table_id):
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	requestPayload = {
 	    "type": "select",
@@ -99,7 +99,7 @@ def fetch_table_data():
 	table_id=request.json;
 	table_id=table_id['table_id']
 
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	requestPayload = {
 	    "type": "select",
@@ -156,7 +156,7 @@ def create_table():
 
 	insert_data_table_details(Data)
 	#fetching table_id
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	requestPayload = {
 	    "type": "select",
@@ -195,7 +195,7 @@ def create_table():
 		sql_string=sql_string+","+val+" TEXT "
 	sql_string=sql_string+");"
 
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	requestPayload = {
     "type" : "run_sql",
@@ -266,7 +266,7 @@ def insert_data():
 	colvalue=colvalue[:-2]
 	sql_string=sql_string+colname+")"+" values ("+colvalue+");"
 
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	requestPayload = {
     "type" : "run_sql",
@@ -322,7 +322,7 @@ def insert_data_table_details(data):
 	colvalue=colvalue[:-2]
 	sql_string=sql_string+colname+")"+" values ("+colvalue+");"
 
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	requestPayload = {
     "type" : "run_sql",
@@ -352,7 +352,7 @@ def update_table():
 	sno=data['sno']
 	user_id=data['user_id']
 
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	table_id=str(table_id)
 	sql_dict={}
@@ -404,7 +404,7 @@ def delete_rows():
 	user_id=data['user_id']
 	sno=data['sno']
 
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	table_id=str(table_id)
 	requestPayload = {
@@ -453,7 +453,7 @@ def drop_table():
 	table_id=data['table_id']
 	sql_string=('DROP TABLE "%s" ;' %table_id)
 	
-	url = "https://data.cramping38-hasura/v1/query"
+	url = "http://data.cramping38-hasura/v1/query"
 
 	requestPayload = {
     "type" : "run_sql",
