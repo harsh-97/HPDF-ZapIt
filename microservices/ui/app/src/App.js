@@ -565,6 +565,7 @@ class Tablespace extends Component {
 	componentWillReceiveProps(nextProps) {
 		if(nextProps.table_id !== null)
 		{
+			this.setState({loading: true});
 			this.fetchTableData(nextProps.table_id);
 			this.setState({table_id: nextProps.table_id});
 		}
