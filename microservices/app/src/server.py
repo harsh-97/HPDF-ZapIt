@@ -9,6 +9,9 @@ import os
 zapurl = os.environ['ZAPURL']
 authtoken = os.environ['AUTH_TOKEN']
 
+clustername = os.environ['CLUSTER_NAME']
+print(clustername)
+
 @app.route("/")
 def home():
 	return "Hasura Hello World"

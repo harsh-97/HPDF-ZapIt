@@ -21,6 +21,8 @@ import DeleteIcon from 'material-ui/svg-icons/action/delete-forever';
 import './App.css';
 
 
+const CLUSTER_NAME = 'cramping38';
+
 const muiTheme = getMuiTheme({
 		palette: {
 			primary1Color: lime300,
@@ -117,7 +119,7 @@ class Login extends Component {
 	}
 
 	doLogin() {
-		var url = "https://auth.cramping38.hasura-app.io/v1/login";
+		var url = "https://auth." + CLUSTER_NAME + ".hasura-app.io/v1/login";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -190,7 +192,7 @@ class Login extends Component {
 	}
 
 	doSignup(event){
-		var url = "https://auth.cramping38.hasura-app.io/v1/signup";
+		var url = "https://auth." + CLUSTER_NAME + ".hasura-app.io/v1/signup";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -321,7 +323,7 @@ class Sidebar extends Component {
 	}
 
 	fetchTableList() {
-		var url = "https://app.cramping38.hasura-app.io/user-tables";
+		var url = "https://app." + CLUSTER_NAME + ".hasura-app.io/user-tables";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -522,7 +524,7 @@ class Tablespace extends Component {
 	}
 
 	fetchTableData(table_id) {
-		var url = "https://app.cramping38.hasura-app.io/fetch-data";
+		var url = "https://app." + CLUSTER_NAME + ".hasura-app.io/fetch-data";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -571,7 +573,7 @@ class Tablespace extends Component {
 	}
 
 	doInsert() {
-		var url = "https://app.cramping38.hasura-app.io/insert-table";
+		var url = "https://app." + CLUSTER_NAME + ".hasura-app.io/insert-table";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -610,7 +612,7 @@ class Tablespace extends Component {
 	}
 
 	doUpdate(sno, colname, value) {
-		var url = "https://app.cramping38.hasura-app.io/update-table";
+		var url = "https://app." + CLUSTER_NAME + ".hasura-app.io/update-table";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -648,7 +650,7 @@ class Tablespace extends Component {
 	}
 
 	doRowDelete(sno) {
-		var url = "https://app.cramping38.hasura-app.io/delete-row";
+		var url = "https://app." + CLUSTER_NAME + ".hasura-app.io/delete-row";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -858,7 +860,7 @@ class Dashboard extends Component {
 	}
 
 	doCreateTable(){
-		var url = "https://app.cramping38.hasura-app.io/new-table";
+		var url = "https://app." + CLUSTER_NAME + ".hasura-app.io/new-table";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -944,7 +946,7 @@ class Dashboard extends Component {
 	}
 
 	doTableDelete(){
-		var url = "https://app.cramping38.hasura-app.io/drop-table";
+		var url = "https://app." + CLUSTER_NAME + ".hasura-app.io/drop-table";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -977,7 +979,7 @@ class Dashboard extends Component {
 
 	doLogout(event) {
 		event.preventDefault();
-		var url = "https://auth.cramping38.hasura-app.io/v1/user/logout";
+		var url = "https://auth." + CLUSTER_NAME + ".hasura-app.io/v1/user/logout";
 
 		var requestOptions = {
 		    "method": "POST",
@@ -1070,9 +1072,6 @@ function Page404(props) {
 
 const Router = () => (
   <Switch>
-  	{alert(process.env.REACT_APP_CLUSTER_NAME)}
-  	{alert(process.env.NODE_ENV)}
-  	{alert(process.env.REACT_APP_TEST_VAR)}
     <Route exact path="/login" component={Login}/>
     <Route exact path="/" component={Dashboard}/>
     <Route path="*" component={Page404}/>
