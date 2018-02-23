@@ -1072,6 +1072,7 @@ const Router = () => (
   <Switch>
   	{alert(process.env.REACT_APP_CLUSTER_NAME)}
   	{alert(process.env.NODE_ENV)}
+  	{alert(process.env.REACT_APP_TEST_VAR)}
     <Route exact path="/login" component={Login}/>
     <Route exact path="/" component={Dashboard}/>
     <Route path="*" component={Page404}/>
