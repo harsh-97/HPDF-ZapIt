@@ -23,6 +23,11 @@ import './App.css';
 
 const CLUSTER_NAME = 'cramping38';
 
+clusername = process.env.REACT_APP_CLUSTER_NAME;
+alert(clusername);
+
+console.log(process.env.REACT_APP_CLUSTER_NAME);
+
 const muiTheme = getMuiTheme({
 		palette: {
 			primary1Color: lime300,
