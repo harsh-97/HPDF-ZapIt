@@ -1070,6 +1070,7 @@ function Page404(props) {
 
 const Router = () => (
   <Switch>
+  	{alert(process.env.CLUSTER_NAME);}
     <Route exact path="/login" component={Login}/>
     <Route exact path="/" component={Dashboard}/>
     <Route path="*" component={Page404}/>
