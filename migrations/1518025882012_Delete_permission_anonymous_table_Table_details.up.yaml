@@ -1,4 +1,0 @@
-- args:
-    role: anonymous
-    table: Table_details
-  type: drop_delete_permission

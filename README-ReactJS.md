@@ -50,18 +50,17 @@ A browser refresh may be required to update the list of tables on the Sidebar
 ### Deploying on Another Cluster
 The `app` microservice (the backend), has been set up to be cluster independent, while the `ui` microservice (the frontend), is *almost* cluster independent. You will have to change a variable to get all requests pointed to your cluster
 
-1. Create a cluster
-2. Run the command `hasura quickstart gauri_97/zapit`
-3. Run the command `cd zapit/microservices/ui/app/src`
-4. Open up `App.js` and edit line 24 
+1. Run the command `hasura quickstart gauri_97/zapit`
+2. Run the command `cd zapit/microservices/ui/app/src`
+3. Open up `App.js` and edit line 24 
 
     >const CLUSTER_NAME = <clustername>;
 
     Replace <clustername> with the name of your cluster, save and exit
 
-5. `cd ../../../..` and run `git add . && git commit -m "First Commit"`
-6. Run the command `git push hasura master`. Once that is complete, Zapit has been deployed on your cluster
-7. Go on ahead to `ui.<clustername>.hasura-app.io/`
+4. `cd ../../../..` and run `git add . && git commit -m "First Commit"`
+5. Run the command `git push hasura master`. Once that is complete, Zapit has been deployed on your cluster
+6. Go on ahead to `ui.<clustername>.hasura-app.io/`
 
 
 ### Internal Implementation Details

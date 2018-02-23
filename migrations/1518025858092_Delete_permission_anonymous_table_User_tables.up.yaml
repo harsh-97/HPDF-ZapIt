@@ -1,4 +1,0 @@
-- args:
-    role: anonymous
-    table: User_tables
-  type: drop_update_permission

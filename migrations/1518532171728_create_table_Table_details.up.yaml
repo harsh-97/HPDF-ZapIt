@@ -1,8 +1,0 @@
-- args:
-    sql: CREATE TABLE "Table_details"("table_id" serial NOT NULL, "table_name" text
-      NOT NULL, "date_created" date NOT NULL, "date_last_modified" date NOT NULL,
-      PRIMARY KEY ("table_id") )
-  type: run_sql
-- args:
-    name: Table_details
-  type: add_existing_table_or_view

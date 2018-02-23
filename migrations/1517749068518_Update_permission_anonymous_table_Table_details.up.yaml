@@ -1,6 +1,0 @@
-- args:
-    permission:
-      check: {}
-    role: anonymous
-    table: Table_details
-  type: create_insert_permission

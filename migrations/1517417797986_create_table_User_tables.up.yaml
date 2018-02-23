@@ -1,7 +1,0 @@
-- args:
-    sql: CREATE TABLE "User_tables"("user_id" integer NOT NULL, "table_id" integer
-      NOT NULL, PRIMARY KEY ("user_id","table_id") )
-  type: run_sql
-- args:
-    name: User_tables
-  type: add_existing_table_or_view
