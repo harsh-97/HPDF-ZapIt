@@ -11,7 +11,6 @@ clustername = os.environ['CLUSTER_NAME']
 
 @app.route("/")
 def home():
-	print(zapurl)
 	return "Hasura Hello World"
 
 
